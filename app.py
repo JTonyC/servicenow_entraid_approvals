@@ -6,9 +6,13 @@ import jwt
 import base64
 import hashlib
 import secrets
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET", "dev-secret")
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
+app.config['PREFERRED_URL_SCHEME'] = 'https'
 
 # --- Config via Environment ---
 CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
