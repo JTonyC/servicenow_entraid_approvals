@@ -11,8 +11,8 @@ app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET", "dev-secret")
 
 # --- Config via Environment ---
-CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
-TENANT_ID = os.getenv("AZURE_TENANT_ID")
+CLIENT_ID = os.getenv("AZUREAPPSERVICE_CLIENTID_7FD0BA2247344384BC6A44692029C45B")
+TENANT_ID = os.getenv("AZUREAPPSERVICE_TENANTID_5909E22C6034485D950022D0F2447A5F")
 AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 SCOPE = [os.getenv("AZURE_SCOPE", f"api://{CLIENT_ID}/approvals.read")]
 SERVICE_NOW_API = os.getenv("SERVICE_NOW_API")
