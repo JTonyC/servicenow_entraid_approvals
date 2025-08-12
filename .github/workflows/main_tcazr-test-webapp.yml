@@ -50,7 +50,7 @@ jobs:
       contents: read #This is required for actions/checkout
 
     env:
-      AZURE_CLIENT_ID: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7FD0BA2247344384BC6A44692029C45B }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID_5909E22C6034485D950022D0F2447A5F }}
       SERVICE_NOW_API: ${{ secrets.SERVICE_NOW_API }}
       FLASK_SECRET: ${{ secrets.FLASK_SECRET }}
@@ -76,7 +76,7 @@ jobs:
               --resource-group TCAZR-UKSOUTH-WEBHOSTING-RSG \
               --name tcazr-test-webapp \
               --settings \
-                AZURE_CLIENT_ID=${{ secrets.AZUREAPPSERVICE_CLIENTID_7FD0BA2247344384BC6A44692029C45B }} \
+                AZURE_CLIENT_ID=${{ secrets.AZURE_OIDC_CLIENT_ID }} \
                 AZURE_TENANT_ID=${{ secrets.AZUREAPPSERVICE_TENANTID_5909E22C6034485D950022D0F2447A5F }} \
                 FLASK_SECRET=${{ secrets.FLASK_SECRET }} \
                 SERVICE_NOW_API=${{ secrets.SERVICE_NOW_API }}
