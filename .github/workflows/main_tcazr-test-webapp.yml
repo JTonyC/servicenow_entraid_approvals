@@ -49,6 +49,12 @@ jobs:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
 
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7FD0BA2247344384BC6A44692029C45B }}
+      AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID_5909E22C6034485D950022D0F2447A5F }}
+      SERVICE_NOW_API: ${{ secrets.SERVICE_NOW_API }}
+      FLASK_SECRET: ${{ secrets.FLASK_SECRET }}
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
