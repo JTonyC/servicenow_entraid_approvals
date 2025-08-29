@@ -94,6 +94,7 @@ def authorized():
     msal_app = get_msal_app()
     print("MSAL version:", msal.__version__)
     print("MSAL app type:", type(msal_app))
+    print("Code verifier from session:", repr(code_verifier))
 
     result = msal_app.acquire_token_by_authorization_code(
         code=code,
