@@ -84,12 +84,21 @@ def authorized():
         return "Missing PKCE code_verifier", 400
 
     msal_app = get_msal_app()
-    result = msal_app.acquire_token_by_authorization_code(
-        code=code,
-        scopes=SCOPE,
-        redirect_uri=REDIRECT_URI,
-        code_verifier=code_verifier
-    )
+    try:
+        result = msal_app.acquire_token_by_authorization_code(
+            code=code,
+            scopes=SCOPE,
+            redirect_uri=REDIRECT_URI,  # your fixed constant
+            code_verifier=code_verifier
+        )
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return f"Exception during token acquisition: {e}", 500
+
+    # Show the raw MSAL result for debugging
+    return jsonify(result)
+
 
     session.pop("state", None)
 
