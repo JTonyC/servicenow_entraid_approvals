@@ -20,6 +20,7 @@ TENANT_ID = os.getenv("AZURE_TENANT_ID")
 AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 SCOPE = [os.getenv("AZURE_SCOPE", f"api://{CLIENT_ID}/approvals.read")]
 SERVICE_NOW_API = os.getenv("SERVICE_NOW_API")
+REDIRECT_URI = "https://tcazr-test-webapp-duejaaf5f2dbacgu.uksouth-01.azurewebsites.net/getAToken"
 
 # --- MSAL App Factory ---
 def get_msal_app():
@@ -61,7 +62,7 @@ def login():
 
     auth_url = msal_app.get_authorization_request_url(
         scopes=SCOPE,
-        redirect_uri=url_for("authorized", _external=True),
+        redirect_uri=REDIRECT_URI,
         state=state,
         code_challenge=code_challenge,
         code_challenge_method="S256",
@@ -86,7 +87,7 @@ def authorized():
     result = msal_app.acquire_token_by_authorization_code(
         code=code,
         scopes=SCOPE,
-        redirect_uri=url_for("authorized", _external=True),
+        redirect_uri=REDIRECT_URI,
         code_verifier=code_verifier
     )
 
