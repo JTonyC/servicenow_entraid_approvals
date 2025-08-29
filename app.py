@@ -1,5 +1,6 @@
 from flask import Flask, render_template_string, redirect, request, session, jsonify, url_for
 import msal
+import inspect
 import os
 import jwt
 import base64
@@ -95,6 +96,10 @@ def authorized():
     print("MSAL version:", msal.__version__)
     print("MSAL app type:", type(msal_app))
     print("Code verifier from session:", repr(code_verifier))
+    print("MSAL acquire_token_by_authorization_code signature:",
+      inspect.signature(msal.PublicClientApplication.acquire_token_by_authorization_code))
+    print("MSAL module file:", msal.__file__)
+
 
     result = msal_app.acquire_token_by_authorization_code(
         code=code,
