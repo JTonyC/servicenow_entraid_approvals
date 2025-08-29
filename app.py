@@ -93,6 +93,7 @@ def authorized():
         return "Missing PKCE code_verifier", 400
 
     msal_app = get_msal_app()
+    # Debugging output
     print("MSAL version:", msal.__version__)
     print("MSAL app type:", type(msal_app))
     print("Code verifier from session:", repr(code_verifier))
