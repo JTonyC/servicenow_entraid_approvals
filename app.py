@@ -92,6 +92,9 @@ def authorized():
         return "Missing PKCE code_verifier", 400
 
     msal_app = get_msal_app()
+    print("MSAL version:", msal.__version__)
+    print("MSAL app type:", type(msal_app))
+
     result = msal_app.acquire_token_by_authorization_code(
         code=code,
         scopes=SCOPE,
