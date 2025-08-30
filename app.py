@@ -23,7 +23,6 @@ CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
 TENANT_ID = os.getenv("AZURE_TENANT_ID")
 AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 SCOPE = [os.getenv("AZURE_SCOPE", "api://db86ab2d-7ee6-4148-995e-ee2ab772c5f0/approvals.read")]
-redirect_uri = url_for("authorized", _external=True, _scheme="https")
 
 
 SN_INSTANCE = "https://dev217486.service-now.com"
@@ -70,6 +69,7 @@ def index():
 
 @app.route("/login")
 def login():
+    redirect_uri = url_for("authorized", _external=True, _scheme="https")
     msal_app = build_msal_app()
     auth_url = msal_app.get_authorization_request_url(
         scopes=SCOPE,
@@ -79,6 +79,7 @@ def login():
 
 @app.route("/getAToken")
 def authorized():
+    redirect_uri = url_for("authorized", _external=True, _scheme="https")
     code = request.args.get("code")
     if not code:
         return "No code returned", 400
