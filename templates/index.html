@@ -24,6 +24,7 @@
                             <th>Opened By</th>
                             {% if type != 'Requests' %}
                                 <th>Assignment Group</th>
+                                <th>Assigned To</th>
                                 <th>Start Date</th>
                                 <th>End Date</th>
                             {% endif %}
@@ -38,6 +39,7 @@
                         <td>{{ row.opened_by }}</td>
                         {% if type != 'Requests' %}
                             <td>{{ row.assignment_group }}</td>
+                            <td>{{ row.assigned_to }}</td>
                             <td>{{ row.start_date|datetimeformat }}</td>
                             <td>{{ row.end_date|datetimeformat }}</td>
                         {% endif %}
@@ -53,6 +55,7 @@
                             <td>{{ row.opened_by }}</td>
                             {% if type != 'Requests' %}
                                 <td>{{ row.assignment_group }}</td>
+                                <td>{{ row.assigned_to }}</td>
                                 <td>{{ row.start_date|datetimeformat }}</td>
                                 <td>{{ row.end_date|datetimeformat }}</td>
                             {% endif %}
