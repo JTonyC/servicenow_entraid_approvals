@@ -1,6 +1,8 @@
-from flask import Flask, redirect, request, session, url_for, jsonify
+from flask import Flask, redirect, request, session, url_for, render_template_string, jsonify
 import msal
 import os
+import requests
+
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
@@ -16,10 +18,11 @@ CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
 TENANT_ID = os.getenv("AZURE_TENANT_ID")
 AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 SCOPE = [os.getenv("AZURE_SCOPE", "api://db86ab2d-7ee6-4148-995e-ee2ab772c5f0/approvals.read")]
-REDIRECT_URI = os.getenv(
-    "REDIRECT_URI",
-    "https://tcazr-test-webapp-duejaaf5f2dbacgu.uksouth-01.azurewebsites.net/getAToken"
-)
+REDIRECT_URI = os.getenv("REDIRECT_URI")
+
+# ServiceNow config
+SN_INSTANCE = "https://dev217486.service-now.com"
+SN_API_PATH = "/api/x_1680431_apis/bupahome_approvals_api/approvals"
 
 def build_msal_app(cache=None):
     return msal.ConfidentialClientApplication(
