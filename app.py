@@ -148,16 +148,15 @@ def fetch_servicenow_approvals(access_token):
         return [{"error": resp.status_code, "details": resp.text}]
 
     if resp.status_code == 200:
-        result = data.get("result", [])
-        if isinstance(result, list):
-            return [flatten_approval(r) for r in result]
-        elif isinstance(result, dict):
-            return [flatten_approval(result)]
-        else:
-            return []
+        approvals = data.get("result", {}).get("approvals", {})
+       # Combine all approval lists across types
+        all_records = []
+        for record_type, records in approvals.items():
+            if isinstance(records, list):
+                all_records.extend(records)
+        return [flatten_approval(r) for r in all_records]
     else:
         return [{"error": resp.status_code, "details": data}]
-
 
 @app.template_filter('datetimeformat')
 def datetimeformat(value, format='%d %b %Y, %H:%M'):
