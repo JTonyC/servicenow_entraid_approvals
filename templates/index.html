@@ -17,17 +17,17 @@
                 <div class="table-responsive">
                 <table class="table table-striped table-hover table-bordered align-middle">
                     <thead class="table-primary">
-                    <tr>
-                        <th>State</th>
-                        <th>Number</th>
-                        <th>Short Description</th>
-                        <th>Opened By</th>
-                        {% if type != 'Request' %}
-                            <th>Assignment Group</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                        {% endif %}
-                    </tr>
+                        <tr>
+                            <th>State</th>
+                            <th>Number</th>
+                            <th>Short Description</th>
+                            <th>Opened By</th>
+                            {% if type != 'Requests' %}
+                                <th>Assignment Group</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                            {% endif %}
+                        </tr>
                     </thead>
                     <tbody>
                     {% for row in approvals[:5] %}
@@ -36,7 +36,7 @@
                         <td>{{ row.number }}</td>
                         <td>{{ row.short_description }}</td>
                         <td>{{ row.opened_by }}</td>
-                        {% if type != 'Request' %}
+                        {% if type != 'Requests' %}
                             <td>{{ row.assignment_group }}</td>
                             <td>{{ row.start_date|datetimeformat }}</td>
                             <td>{{ row.end_date|datetimeformat }}</td>
@@ -51,7 +51,7 @@
                             <td>{{ row.number }}</td>
                             <td>{{ row.short_description }}</td>
                             <td>{{ row.opened_by }}</td>
-                            {% if type != 'Request' %}
+                            {% if type != 'Requests' %}
                                 <td>{{ row.assignment_group }}</td>
                                 <td>{{ row.start_date|datetimeformat }}</td>
                                 <td>{{ row.end_date|datetimeformat }}</td>
