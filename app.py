@@ -100,8 +100,8 @@ def logout():
     return redirect(url_for("index"))
 
 TYPE_LABELS = {
-    "change_request": "Change Request",
-    "sc_req_item": "Request"
+    "change_request": "Change Requests",
+    "sc_req_item": "Requests"
 }
 
 def flatten_approval(record):
