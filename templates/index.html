@@ -7,6 +7,7 @@
             <h2>Hello {{ user.name or user.preferred_username }}!</h2>
             <a href="{{ url_for('refresh') }}" class="btn btn-secondary">Refresh Approvals</a>
         </div>
+        <pre>{{ approvals | tojson(indent=2) }}</pre>
 
         {% if approvals and approvals|length > 0 and approvals[0] is mapping %}
             <div class="table-responsive">
