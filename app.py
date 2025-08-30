@@ -7,6 +7,11 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET", "dev-secret")
+app.config.update(
+    SESSION_COOKIE_SECURE=True,       # Only send cookie over HTTPS
+    SESSION_COOKIE_SAMESITE="Lax",    # Allow redirect back from Azure AD
+    SESSION_COOKIE_HTTPONLY=True      # Mitigate XSS
+)
 
 # Ensure Flask sees correct scheme/host behind Azure proxy
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
