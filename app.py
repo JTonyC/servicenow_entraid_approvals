@@ -99,6 +99,11 @@ def logout():
     session.clear()
     return redirect(url_for("index"))
 
+TYPE_LABELS = {
+    "change_request": "Change Request",
+    "sc_req_item": "Request"
+}
+
 def flatten_approval(record):
 
     #Flatten an approval record so the five desired fields are always at the top level.
@@ -167,9 +172,16 @@ def fetch_servicenow_approvals(access_token):
         approvals = data.get("result", {}).get("approvals", {})
         for record_type, records in approvals.items():
             if isinstance(records, list):
-                approvals_by_type[record_type] = [flatten_approval(r) for r in records]
+                 friendly_label = TYPE_LABELS.get(
+                    record_type, record_type.replace('_', ' ').title()
+                )
+            approvals_by_type[friendly_label] = [
+                flatten_approval(r) for r in records
+            ]
     else:
-        approvals_by_type["error"] = [{"error": resp.status_code, "details": data}]
+        approvals_by_type["error"] = [
+            {"error": resp.status_code, "details": data}
+        ]
 
     return approvals_by_type
 

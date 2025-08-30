@@ -10,7 +10,7 @@
 
         {% for type, approvals in approvals_by_type.items() %}
             <h4 class="mt-4">
-                {{ type.replace('_', ' ') | title }}
+                {{ type }}
             </h4>
 
             {% if approvals and approvals|length > 0 %}
@@ -28,7 +28,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for row in approvals[:10] %}
+                            {% for row in approvals[:5] %}
                             <tr>
                                 <td>{{ row.state }}</td>
                                 <td>{{ row.number }}</td>
@@ -41,7 +41,7 @@
                             {% endfor %}
                         </tbody>
                         <tbody id="extra-{{ type }}" class="collapse">
-                            {% for row in approvals[10:] %}
+                            {% for row in approvals[5:] %}
                             <tr>
                                 <td>{{ row.state }}</td>
                                 <td>{{ row.number }}</td>
@@ -56,7 +56,7 @@
                     </table>
                 </div>
 
-                {% if approvals|length > 10 %}
+                {% if approvals|length > 5 %}
                 <div class="text-center mb-4">
                     <button class="btn btn-outline-primary" type="button"
                             data-bs-toggle="collapse"
