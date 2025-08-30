@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request, session, url_for, render_template_string, jsonify
+from flask import Flask, render_template, redirect, request, session, url_for, render_template_string, jsonify
 import msal
 import os
 import requests
@@ -40,32 +40,15 @@ def build_msal_app(cache=None):
 def index():
     if "user" in session:
         approvals = fetch_servicenow_approvals(session["access_token"])
-        # Simple HTML table rendering
-        html = """
-        <h2>Hello {{ user.name }}!</h2>
-        <h3>Your Approvals</h3>
-        {% if approvals %}
-        <table border="1" cellpadding="5">
-            <tr>
-                {% for key in approvals[0].keys() %}
-                <th>{{ key }}</th>
-                {% endfor %}
-            </tr>
-            {% for row in approvals %}
-            <tr>
-                {% for val in row.values() %}
-                <td>{{ val }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </table>
-        {% else %}
-        <p>No approvals found.</p>
-        {% endif %}
-        <p><a href="{{ url_for('logout') }}">Logout</a></p>
-        """
-        return render_template_string(html, user=session["user"], approvals=approvals)
-    return '<a href="/login">Sign in</a>'
+        return render_template("index.html", user=session["user"], approvals=approvals)
+    return render_template("index.html", user=None, approvals=None)
+
+@app.route("/refresh")
+def refresh():
+    if "user" in session:
+        approvals = fetch_servicenow_approvals(session["access_token"])
+        return render_template("index.html", user=session["user"], approvals=approvals)
+    return redirect(url_for("login"))
 
 @app.route("/login")
 def login():
