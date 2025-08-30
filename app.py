@@ -94,7 +94,36 @@ def logout():
     session.clear()
     return redirect(url_for("index"))
 
+def flatten_approval(record):
+
+    #Flatten an approval record so the five desired fields are always at the top level.
+    #Looks in the top level first, then in the first nested dict if needed.
+    target_fields = ["approval_state", "short_description", "requested_by", "opened_at", "urgency"]
+    flat = {}
+
+    # First, copy any top-level matches
+    for field in target_fields:
+        if field in record:
+            flat[field] = record[field]
+
+    # If any fields are missing, check nested dicts
+    for field in target_fields:
+        if field not in flat or flat[field] in (None, ""):
+            for val in record.values():
+                if isinstance(val, dict) and field in val:
+                    flat[field] = val[field]
+                    break
+
+    # Ensure all keys exist, even if empty
+    for field in target_fields:
+        flat.setdefault(field, "")
+
+    return flat
+
 def fetch_servicenow_approvals(access_token):
+    if not access_token:
+        return []
+
     url = f"{SN_INSTANCE}{SN_API_PATH}"
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -111,9 +140,15 @@ def fetch_servicenow_approvals(access_token):
 
     if resp.status_code == 200:
         result = data.get("result", [])
-        return result if isinstance(result, list) else [result]
+        if isinstance(result, list):
+            return [flatten_approval(r) for r in result]
+        elif isinstance(result, dict):
+            return [flatten_approval(result)]
+        else:
+            return []
     else:
         return [{"error": resp.status_code, "details": data}]
+
 
 @app.template_filter('datetimeformat')
 def datetimeformat(value, format='%d %b %Y, %H:%M'):
