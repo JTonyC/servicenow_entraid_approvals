@@ -104,6 +104,7 @@ def flatten_approval(record):
         "short_description",
         "opened_by",
         "assignment_group",
+        "assigned_to",
         "start_date",
         "end_date"
     ]
