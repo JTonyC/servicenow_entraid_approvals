@@ -73,7 +73,7 @@ def login():
     msal_app = build_msal_app()
     auth_url = msal_app.get_authorization_request_url(
         scopes=SCOPE,
-        redirect_uri=REDIRECT_URI
+        redirect_uri=redirect_uri
     )
     return redirect(auth_url)
 
@@ -88,7 +88,7 @@ def authorized():
     result = msal_app.acquire_token_by_authorization_code(
         code=code,
         scopes=SCOPE,
-        redirect_uri=REDIRECT_URI
+        redirect_uri=redirect_uri
     )
 
     if "access_token" in result:
