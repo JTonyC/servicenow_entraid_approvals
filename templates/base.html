@@ -11,9 +11,9 @@
     <div class="container">
         <a class="navbar-brand" href="{{ url_for('index') }}">Approvals App</a>
         {% if session.get('user') %}
-            <span class="navbar-text text-white me-3">
+            <!-- <span class="navbar-text text-white me-3">
                 Signed in as {{ session['user'].name or session['user'].preferred_username }}
-            </span>
+            </span> -->
             <a class="btn btn-outline-light" href="{{ url_for('logout') }}">Logout</a>
         {% endif %}
     </div>
