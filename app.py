@@ -20,7 +20,7 @@ REDIRECT_URI = os.getenv(
     "REDIRECT_URI",
     "https://tcazr-test-webapp-duejaaf5f2dbacgu.uksouth-01.azurewebsites.net/getAToken"
 )
-
+# Comment for push
 def build_msal_app(cache=None):
     return msal.ConfidentialClientApplication(
         client_id=CLIENT_ID,
