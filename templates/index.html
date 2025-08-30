@@ -43,13 +43,10 @@
                     {% if approvals|length > 5 %}
                         {% for row in approvals[5:] %}
                         <tr class="collapse" id="extra-{{ slug }}">
-                        <td>{{ row.state }}</td>
-                        <td>{{ row.number }}</td>
-                        <td>{{ row.short_description }}</td>
-                        <td>{{ row.opened_by }}</td>
-                        <td>{{ row.assignment_group }}</td>
-                        <td>{{ row.start_date|datetimeformat }}</td>
-                        <td>{{ row.end_date|datetimeformat }}</td>
+                            <td>{{ row.state }}</td>
+                            <td>{{ row.number }}</td>
+                            <td>{{ row.short_description }}</td>
+                            <td>{{ row.opened_by }}</td>
                         </tr>
                         {% endfor %}
                     {% endif %}
