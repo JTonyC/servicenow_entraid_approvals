@@ -103,17 +103,22 @@ def logout():
     return redirect(url_for("index"))
 
 def fetch_servicenow_approvals(access_token):
-    """Call your Scripted REST API in ServiceNow with the Entra ID token."""
     url = f"{SN_INSTANCE}{SN_API_PATH}"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Accept": "application/json"
     }
     resp = requests.get(url, headers=headers)
-    if resp.status_code == 200:
-        return resp.json().get("result", [])
-    else:
+    try:
+        data = resp.json()
+    except ValueError:
         return [{"error": resp.status_code, "details": resp.text}]
+
+    if resp.status_code == 200:
+        result = data.get("result", [])
+        return result if isinstance(result, list) else [result]
+    else:
+        return [{"error": resp.status_code, "details": data}]
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
