@@ -32,7 +32,32 @@ def build_msal_app(cache=None):
 @app.route("/")
 def index():
     if "user" in session:
-        return f"Hello {session['user']['name']}! <a href='/logout'>Logout</a>"
+        approvals = fetch_servicenow_approvals(session["access_token"])
+        # Simple HTML table rendering
+        html = """
+        <h2>Hello {{ user.name }}!</h2>
+        <h3>Your Approvals</h3>
+        {% if approvals %}
+        <table border="1" cellpadding="5">
+            <tr>
+                {% for key in approvals[0].keys() %}
+                <th>{{ key }}</th>
+                {% endfor %}
+            </tr>
+            {% for row in approvals %}
+            <tr>
+                {% for val in row.values() %}
+                <td>{{ val }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No approvals found.</p>
+        {% endif %}
+        <p><a href="{{ url_for('logout') }}">Logout</a></p>
+        """
+        return render_template_string(html, user=session["user"], approvals=approvals)
     return '<a href="/login">Sign in</a>'
 
 @app.route("/login")
@@ -46,9 +71,6 @@ def login():
 
 @app.route("/getAToken")
 def authorized():
-    if "error" in request.args:
-        return f"Error: {request.args['error']} - {request.args.get('error_description')}", 400
-
     code = request.args.get("code")
     if not code:
         return "No code returned", 400
@@ -61,7 +83,6 @@ def authorized():
     )
 
     if "access_token" in result:
-        # Decode ID token claims for user info
         id_claims = result.get("id_token_claims", {})
         session["user"] = {
             "name": id_claims.get("name"),
@@ -71,12 +92,25 @@ def authorized():
         session["access_token"] = result["access_token"]
         return redirect(url_for("index"))
     else:
-        return jsonify(result), 400
+        return result, 400
 
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("index"))
+
+def fetch_servicenow_approvals(access_token):
+    """Call your Scripted REST API in ServiceNow with the Entra ID token."""
+    url = f"{SN_INSTANCE}{SN_API_PATH}"
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Accept": "application/json"
+    }
+    resp = requests.get(url, headers=headers)
+    if resp.status_code == 200:
+        return resp.json().get("result", [])
+    else:
+        return [{"error": resp.status_code, "details": resp.text}]
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
