@@ -98,7 +98,15 @@ def flatten_approval(record):
 
     #Flatten an approval record so the five desired fields are always at the top level.
     #Looks in the top level first, then in the first nested dict if needed.
-    target_fields = ["approval_state", "short_description", "requested_by", "opened_at", "urgency"]
+    target_fields = [
+        "state",
+        "number",
+        "short_description",
+        "opened_by",
+        "assignment_group",
+        "start_date",
+        "end_date"
+    ]
     flat = {}
 
     if not isinstance(record, dict):
