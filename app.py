@@ -41,9 +41,14 @@ def build_msal_app(cache=None):
 def index():
     if "user" in session:
         token = session.get("access_token")
-        approvals = fetch_servicenow_approvals(token) if token else []
-        return render_template("index.html", user=session["user"], approvals=approvals)
-    return render_template("index.html", user=None, approvals=None)
+        approvals_by_type = fetch_servicenow_approvals(token)
+        return render_template(
+            "index.html",
+            user=session["user"],
+            approvals_by_type=approvals_by_type
+        )
+    return render_template("index.html", user=None, approvals_by_type={})
+
 
 @app.route("/refresh")
 def refresh():
@@ -156,16 +161,17 @@ def fetch_servicenow_approvals(access_token):
     except ValueError:
         return [{"error": resp.status_code, "details": resp.text}]
 
+    approvals_by_type = {}
+
     if resp.status_code == 200:
         approvals = data.get("result", {}).get("approvals", {})
-       # Combine all approval lists across types
-        all_records = []
         for record_type, records in approvals.items():
             if isinstance(records, list):
-                all_records.extend(records)
-        return [flatten_approval(r) for r in all_records]
+                approvals_by_type[record_type] = [flatten_approval(r) for r in records]
     else:
-        return [{"error": resp.status_code, "details": data}]
+        approvals_by_type["error"] = [{"error": resp.status_code, "details": data}]
+
+    return approvals_by_type
 
 @app.template_filter('datetimeformat')
 def datetimeformat(value, format='%d %b %Y, %H:%M'):

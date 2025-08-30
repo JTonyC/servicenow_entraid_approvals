@@ -8,61 +8,69 @@
             <a href="{{ url_for('refresh') }}" class="btn btn-secondary">Refresh Approvals</a>
         </div>
 
-        {% if approvals and approvals|length > 0 %}
-            <div class="table-responsive">
-                <table class="table table-striped table-hover table-bordered align-middle">
-                    <thead class="table-primary">
-                        <tr>
-                            <th>State</th>
-                            <th>Number</th>
-                            <th>Short Description</th>
-                            <th>Opened By</th>
-                            <th>Assignment Group</th>
-                            <th>assigned_to</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in approvals[:10] %}
-                        <tr>
-                            <td>{{ row.state }}</td>
-                            <td>{{ row.number }}</td>
-                            <td>{{ row.short_description }}</td>
-                            <td>{{ row.opened_by }}</td>
-                            <td>{{ row.assignment_group }}</td>
-                            <td>{{ row.assigned_to }}</td>
-                            <td>{{ row.start_date|datetimeformat }}</td>
-                            <td>{{ row.end_date|datetimeformat }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                    <tbody id="extra-approvals" class="collapse">
-                        {% for row in approvals[10:] %}
-                        <tr>
-                            <td>{{ row.state }}</td>
-                            <td>{{ row.number }}</td>
-                            <td>{{ row.short_description }}</td>
-                            <td>{{ row.opened_by }}</td>
-                            <td>{{ row.assignment_group }}</td>
-                            <td>{{ row.start_date|datetimeformat }}</td>
-                            <td>{{ row.end_date|datetimeformat }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        {% for type, approvals in approvals_by_type.items() %}
+            <h4 class="mt-4">
+                {{ type.replace('_', ' ') | title }}
+            </h4>
 
-            {% if approvals|length > 10 %}
-            <div class="text-center mb-4">
-                <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#extra-approvals" aria-expanded="false" aria-controls="extra-approvals">
-                    Show All Approvals
-                </button>
-            </div>
+            {% if approvals and approvals|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover table-bordered align-middle">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>State</th>
+                                <th>Number</th>
+                                <th>Short Description</th>
+                                <th>Opened By</th>
+                                <th>Assignment Group</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in approvals[:10] %}
+                            <tr>
+                                <td>{{ row.state }}</td>
+                                <td>{{ row.number }}</td>
+                                <td>{{ row.short_description }}</td>
+                                <td>{{ row.opened_by }}</td>
+                                <td>{{ row.assignment_group }}</td>
+                                <td>{{ row.start_date|datetimeformat }}</td>
+                                <td>{{ row.end_date|datetimeformat }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tbody id="extra-{{ type }}" class="collapse">
+                            {% for row in approvals[10:] %}
+                            <tr>
+                                <td>{{ row.state }}</td>
+                                <td>{{ row.number }}</td>
+                                <td>{{ row.short_description }}</td>
+                                <td>{{ row.opened_by }}</td>
+                                <td>{{ row.assignment_group }}</td>
+                                <td>{{ row.start_date|datetimeformat }}</td>
+                                <td>{{ row.end_date|datetimeformat }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if approvals|length > 10 %}
+                <div class="text-center mb-4">
+                    <button class="btn btn-outline-primary" type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#extra-{{ type }}"
+                            aria-expanded="false"
+                            aria-controls="extra-{{ type }}">
+                        Show All {{ type.replace('_', ' ') | title }}
+                    </button>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info">No {{ type.replace('_', ' ') | title }} approvals found.</div>
             {% endif %}
-        {% else %}
-            <div class="alert alert-info">No approvals found.</div>
-        {% endif %}
+        {% endfor %}
     {% else %}
         <div class="text-center">
             <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">Sign in</a>
