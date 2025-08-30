@@ -22,9 +22,11 @@
                         <th>Number</th>
                         <th>Short Description</th>
                         <th>Opened By</th>
-                        <th>Assignment Group</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
+                        {% if type != 'Request' %}
+                            <th>Assignment Group</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                        {% endif %}
                     </tr>
                     </thead>
                     <tbody>
@@ -34,9 +36,11 @@
                         <td>{{ row.number }}</td>
                         <td>{{ row.short_description }}</td>
                         <td>{{ row.opened_by }}</td>
-                        <td>{{ row.assignment_group }}</td>
-                        <td>{{ row.start_date|datetimeformat }}</td>
-                        <td>{{ row.end_date|datetimeformat }}</td>
+                        {% if type != 'Request' %}
+                            <td>{{ row.assignment_group }}</td>
+                            <td>{{ row.start_date|datetimeformat }}</td>
+                            <td>{{ row.end_date|datetimeformat }}</td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
 
@@ -47,6 +51,11 @@
                             <td>{{ row.number }}</td>
                             <td>{{ row.short_description }}</td>
                             <td>{{ row.opened_by }}</td>
+                            {% if type != 'Request' %}
+                                <td>{{ row.assignment_group }}</td>
+                                <td>{{ row.start_date|datetimeformat }}</td>
+                                <td>{{ row.end_date|datetimeformat }}</td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     {% endif %}
