@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, session, url_for, render_template_string, jsonify
+from flask import Flask, render_template, redirect, request, session, url_for, jsonify
 from datetime import datetime
 import msal
 import os
@@ -40,14 +40,16 @@ def build_msal_app(cache=None):
 @app.route("/")
 def index():
     if "user" in session:
-        approvals = fetch_servicenow_approvals(session["access_token"])
+        token = session.get("access_token")
+        approvals = fetch_servicenow_approvals(token) if token else []
         return render_template("index.html", user=session["user"], approvals=approvals)
     return render_template("index.html", user=None, approvals=None)
 
 @app.route("/refresh")
 def refresh():
     if "user" in session:
-        approvals = fetch_servicenow_approvals(session["access_token"])
+        token = session.get("access_token")
+        approvals = fetch_servicenow_approvals(token) if token else []
         return render_template("index.html", user=session["user"], approvals=approvals)
     return redirect(url_for("login"))
 
@@ -99,6 +101,9 @@ def fetch_servicenow_approvals(access_token):
         "Accept": "application/json"
     }
     resp = requests.get(url, headers=headers)
+    print("SN status:", resp.status_code)
+    print("SN raw:", resp.text)
+
     try:
         data = resp.json()
     except ValueError:
