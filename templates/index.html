@@ -10,21 +10,25 @@
 
         {% if approvals and approvals|length > 0 and approvals[0] is mapping %}
             <div class="table-responsive">
-                <table class="table table-striped table-bordered align-middle">
+                <table class="table table-striped table-hover table-bordered align-middle">
                     <thead class="table-primary">
                         <tr>
-                            {% for key in approvals[0].keys() %}
-                                <th>{{ key|capitalize }}</th>
-                            {% endfor %}
+                            <th>Status</th>
+                            <th>Short Description</th>
+                            <th>Requested By</th>
+                            <th>Opened</th>
+                            <th>Urgency</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for row in approvals %}
-                            <tr>
-                                {% for val in row.values() %}
-                                    <td>{{ val }}</td>
-                                {% endfor %}
-                            </tr>
+                        <tr>
+                            <td>{{ row.approval_state }}</td>
+                            <td>{{ row.short_description }}</td>
+                            <td>{{ row.requested_by }}</td>
+                            <td>{{ row.opened_at }}</td>
+                            <td>{{ row.urgency }}</td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>

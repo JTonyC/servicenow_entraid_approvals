@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, request, session, url_for, render_template_string, jsonify
+from datetime import datetime
 import msal
 import os
 import requests
@@ -108,6 +109,13 @@ def fetch_servicenow_approvals(access_token):
         return result if isinstance(result, list) else [result]
     else:
         return [{"error": resp.status_code, "details": data}]
+
+@app.template_filter('datetimeformat')
+def datetimeformat(value, format='%d %b %Y, %H:%M'):
+    try:
+        return datetime.fromisoformat(value.replace('Z', '+00:00')).strftime(format)
+    except Exception:
+        return value
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
