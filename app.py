@@ -101,23 +101,32 @@ def flatten_approval(record):
     target_fields = ["approval_state", "short_description", "requested_by", "opened_at", "urgency"]
     flat = {}
 
-    # First, copy any top-level matches
-    for field in target_fields:
-        if field in record:
-            flat[field] = record[field]
+    if not isinstance(record, dict):
+        return {field: "" for field in target_fields}
 
-    # If any fields are missing, check nested dicts
+    # Look at top-level first
     for field in target_fields:
-        if field not in flat or flat[field] in (None, ""):
-            for val in record.values():
-                if isinstance(val, dict) and field in val:
-                    flat[field] = val[field]
-                    break
+        val = record.get(field)
+        if isinstance(val, dict) and "display_value" in val:
+            flat[field] = val["display_value"]
+        elif val not in (None, ""):
+            flat[field] = val
 
-    # Ensure all keys exist, even if empty
+    # If missing, look inside first nested dict
+    for val in record.values():
+        if isinstance(val, dict):
+            for field in target_fields:
+                if field not in flat or flat[field] in (None, ""):
+                    subval = val.get(field)
+                    if isinstance(subval, dict) and "display_value" in subval:
+                        flat[field] = subval["display_value"]
+                    elif subval not in (None, ""):
+                        flat[field] = subval
+    # Ensure all keys exist
     for field in target_fields:
         flat.setdefault(field, "")
 
+    print("Flattened approval:", flat)
     return flat
 
 def fetch_servicenow_approvals(access_token):
