@@ -11,25 +11,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1️ Register the pipeline in ServiceNow
-  register-pipeline:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Register pipeline in ServiceNow
-        uses: ServiceNow/servicenow-devops-register-pipeline@v1.38.0
-        with:
-          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          context-github: ${{ toJSON(github) }}
-          pipeline-name: "Approvals Dashboard Pipeline"
-
-  # 2️ Build job
   build:
-    needs: register-pipeline
     runs-on: ubuntu-latest
     permissions:
       contents: read
+
     steps:
       - uses: actions/checkout@v4
 
@@ -42,11 +28,9 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
-      
+
       - name: Install dependencies
         run: pip install -r requirements.txt
-
-      # Optional: run tests here
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -56,7 +40,6 @@ jobs:
             .
             !venv/
 
-      # 3️ Register the build artifact in ServiceNow
       - name: Register build artifact in ServiceNow
         uses: ServiceNow/servicenow-devops-register-artifact@v1.38.0
         with:
@@ -70,11 +53,11 @@ jobs:
           branch-name: ${{ github.ref_name }}
           commit-id: ${{ github.sha }}
 
-  # 4️ Deployment gate (Change creation + approval)
   ServiceNowDevOpsChange:
     needs: build
     runs-on: ubuntu-latest
     name: ServiceNow DevOps Change (Deployment Gate)
+
     steps:
       - name: Register deployment gate
         uses: ServiceNow/servicenow-devops-change@v6.1.0
@@ -88,25 +71,25 @@ jobs:
             {
               "environment": "prod",
               "jobName": "deploy"
-              /* 
-              , "attributes": {
-                  "short_description": "Override short description here",
-                  "description": "Override long description here",
-                  "assignment_group": "<sys_id of assignment group>",
-                  "priority": "3",
-                  "implementation_plan": "Override implementation plan here",
-                  "backout_plan": "Override backout plan here",
-                  "test_plan": "Override test plan here",
-                  "category": "Software",
-                  "risk": "Low",
-                  "impact": "Low",
-                  "cmdb_ci": "<sys_id of Application Service CI>",
-                  "u_environment": "prod"
-              }
-              */
             }
 
-  # 5️ Deploy job
+# To override change request fields instead of using record preset
+# Add the attributes hash, including the attribute and value to override.
+# , "attributes": {
+#     "short_description": "Hotfix deployment for payment API",
+#     "description": "Triggered by GitHub Actions for urgent fix",
+#     "assignment_group": "<sys_id of CAB group>",
+#     "priority": "2",
+#     "implementation_plan": "Deploy hotfix branch and monitor API latency",
+#     "backout_plan": "Revert to previous artifact and restore DB snapshot",
+#     "test_plan": "Run regression suite and validate payment flow",
+#     "category": "Software",
+#     "risk": "Medium",
+#     "impact": "Medium",
+#     "cmdb_ci": "<sys_id of Application Service CI>",
+#     "u_environment": "prod"
+# }
+
   deploy:
     needs: ServiceNowDevOpsChange
     runs-on: ubuntu-latest
@@ -114,17 +97,19 @@ jobs:
     permissions:
       id-token: write
       contents: read
+
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID_5909E22C6034485D950022D0F2447A5F }}
       SERVICE_NOW_API: ${{ secrets.SERVICE_NOW_API }}
       FLASK_SECRET: ${{ secrets.FLASK_SECRET }}
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: python-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -152,7 +137,6 @@ jobs:
           app-name: 'tcazr-test-webapp'
           slot-name: 'Production'
 
-  # 6️ Close the change after successful deploy
   close-change:
     needs: deploy
     runs-on: ubuntu-latest
