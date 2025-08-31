@@ -84,24 +84,6 @@ jobs:
               "jobName": "deploy"
             }
 
-      - name: Get change details after approval
-        id: get-change
-        uses: ServiceNow/servicenow-devops-get-change@v5.1.0
-        with:
-          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          context-github: ${{ toJSON(github) }}
-          change-details: >-
-            {
-              "sysId": "${{ steps.deployment-gate.outputs.change-request-sys-id }}"
-            }
-
-      - name: Log change URL
-        run: |
-          echo "Change Request Number: ${{ steps.get-change.outputs.change-request-number }}"
-          echo "Change Request URL: ${{ secrets.SN_INSTANCE_URL }}/nav_to.do?uri=change_request.do?sys_id=${{ steps.get-change.outputs.change-request-sys-id }}"
-
 # To override change request fields instead of using record preset
 # Add the attributes hash in the deployment gate after jobName, including the attribute and value to override.
 # , "attributes": {
