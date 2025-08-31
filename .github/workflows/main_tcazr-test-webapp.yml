@@ -55,7 +55,7 @@ jobs:
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
           job-name: ServiceNow DevOps Change
-          change-request: '{setCloseCode":"true"}'
+          change-request: '{"setCloseCode":"true"}'
           interval: '100'
           timeout: '3600'
           deployment-gate: '{"environment": "prod","jobName": "deploy"}'
