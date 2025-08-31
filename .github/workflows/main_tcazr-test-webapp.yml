@@ -45,7 +45,7 @@ jobs:
   ServiceNowDevOpsChange:
     needs: build
     runs-on: ubuntu-latest
-    name: ServiceNow DevOps Change (Deployment Gate)
+    name: ServiceNow DevOps Change
     steps:
       - name: Register deployment gate
         uses: ServiceNow/servicenow-devops-change@v6.1.0
@@ -55,11 +55,10 @@ jobs:
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
           job-name: ServiceNow DevOps Change
-          deployment-gate: >-
-            {
-              "environment": "prod",
-              "jobName": "deploy"
-            }
+          change-request: '{setCloseCode":"true"}'
+          interval: '100'
+          timeout: '3600'
+          deployment-gate: '{"environment": "prod","jobName": "deploy"}'
 
   deploy:
     needs: ServiceNowDevOpsChange
