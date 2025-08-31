@@ -64,7 +64,7 @@ jobs:
   ServiceNowDevOpsChange:
     needs: build
     runs-on: ubuntu-latest
-    name: ServiceNow DevOps Change (Deployment Gate)
+    name: ServiceNow DevOps Change
     outputs:
       change_sys_id: ${{ steps.deployment-gate.outputs.change-request-sys-id }}
 
