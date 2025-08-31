@@ -37,7 +37,8 @@ jobs:
         with:
           name: python-app
           path: |
-            .
+            app/
+            requirements.txt
             !venv/
 
       - name: Register build artifact in ServiceNow
@@ -64,9 +65,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     name: ServiceNow DevOps Change (Deployment Gate)
+    outputs:
+      change_sys_id: ${{ steps.deployment-gate.outputs.change-request-sys-id }}
 
     steps:
       - name: Register deployment gate
+        id: deployment-gate
         uses: ServiceNow/servicenow-devops-change@v6.1.0
         with:
           devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
@@ -90,7 +94,7 @@ jobs:
           context-github: ${{ toJSON(github) }}
           change-details: >-
             {
-              "context": ${{ toJSON(github) }}
+              "sysId": "${{ steps.deployment-gate.outputs.change-request-sys-id }}"
             }
 
       - name: Log change URL
@@ -173,10 +177,16 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
-          job-name: Close Change
+          change-details: >-
+            {
+              "sysId": "${{ needs.ServiceNowDevOpsChange.outputs.change_sys_id }}"
+            }
           attributes: >-
             {
               "state": "Closed",
               "close_code": "successful",
               "close_notes": "Deployment completed successfully and validated"
             }
+      - name: Log closed change URL
+        run: | 
+          echo "Closed Change URL: ${{ secrets.SN_INSTANCE_URL }}/nav_to.do?uri=change_request.do?sys_id=${{ needs.ServiceNowDevOpsChange.outputs.change_sys_id }}"
