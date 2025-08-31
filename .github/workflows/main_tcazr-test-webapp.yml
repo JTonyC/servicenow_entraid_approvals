@@ -161,10 +161,4 @@ jobs:
               "state": "Closed",
               "close_code": "successful",
               "close_notes": "Deployment completed successfully and validated"
-              /* Uncomment to override closure details:
-              , "attributes": {
-                  "close_code": "successful",
-                  "close_notes": "Hotfix deployed and verified in production"
-              }
-              */
             }
