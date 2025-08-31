@@ -42,9 +42,29 @@ jobs:
             .
             !venv/
 
-  deploy:
-    runs-on: ubuntu-latest
+  ServiceNowDevOpsChange:
     needs: build
+    runs-on: ubuntu-latest
+    name: ServiceNow DevOps Change (Deployment Gate)
+    steps:
+      - name: Register deployment gate
+        uses: ServiceNow/servicenow-devops-change@v6.1.0
+        with:
+          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: ServiceNow DevOps Change
+          deployment-gate: >-
+            {
+              "environment": "prod",
+              "jobName": "deploy"
+            }
+
+  deploy:
+    needs: ServiceNowDevOpsChange
+    runs-on: ubuntu-latest
+    environment: prod
     permissions:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
@@ -87,4 +107,3 @@ jobs:
         with:
           app-name: 'tcazr-test-webapp'
           slot-name: 'Production'
-          
