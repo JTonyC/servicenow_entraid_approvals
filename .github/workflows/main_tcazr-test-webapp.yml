@@ -11,11 +11,25 @@ on:
   workflow_dispatch:
 
 jobs:
+  # 1️ Register the pipeline in ServiceNow
+  register-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Register pipeline in ServiceNow
+        uses: ServiceNow/servicenow-devops-register-pipeline@v1.38.0
+        with:
+          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          pipeline-name: "Approvals Dashboard Pipeline"
+
+  # 2️ Build job
   build:
+    needs: register-pipeline
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
-
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -31,8 +45,8 @@ jobs:
       
       - name: Install dependencies
         run: pip install -r requirements.txt
-        
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+
+      # Optional: run tests here
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -42,6 +56,21 @@ jobs:
             .
             !venv/
 
+      # 3️ Register the build artifact in ServiceNow
+      - name: Register build artifact in ServiceNow
+        uses: ServiceNow/servicenow-devops-register-artifact@v1.38.0
+        with:
+          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          artifact-name: "python-app"
+          artifact-type: "zip"
+          repository-name: ${{ github.repository }}
+          branch-name: ${{ github.ref_name }}
+          commit-id: ${{ github.sha }}
+
+  # 4️ Deployment gate (Change creation + approval)
   ServiceNowDevOpsChange:
     needs: build
     runs-on: ubuntu-latest
@@ -59,22 +88,37 @@ jobs:
             {
               "environment": "prod",
               "jobName": "deploy"
+              /* 
+              , "attributes": {
+                  "short_description": "Override short description here",
+                  "description": "Override long description here",
+                  "assignment_group": "<sys_id of assignment group>",
+                  "priority": "3",
+                  "implementation_plan": "Override implementation plan here",
+                  "backout_plan": "Override backout plan here",
+                  "test_plan": "Override test plan here",
+                  "category": "Software",
+                  "risk": "Low",
+                  "impact": "Low",
+                  "cmdb_ci": "<sys_id of Application Service CI>",
+                  "u_environment": "prod"
+              }
+              */
             }
 
+  # 5️ Deploy job
   deploy:
     needs: ServiceNowDevOpsChange
     runs-on: ubuntu-latest
     environment: prod
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-
+      id-token: write
+      contents: read
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID_5909E22C6034485D950022D0F2447A5F }}
       SERVICE_NOW_API: ${{ secrets.SERVICE_NOW_API }}
       FLASK_SECRET: ${{ secrets.FLASK_SECRET }}
-
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -101,9 +145,23 @@ jobs:
                 FLASK_SECRET=${{ secrets.FLASK_SECRET }} \
                 SERVICE_NOW_API=${{ secrets.SERVICE_NOW_API }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'tcazr-test-webapp'
           slot-name: 'Production'
+
+  # 6️ Close the change after successful deploy
+  close-change:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close change in ServiceNow
+        uses: ServiceNow/servicenow-devops-close-change@v1.38.0
+        with:
+          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: Close Change
