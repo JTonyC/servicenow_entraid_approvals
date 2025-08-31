@@ -81,7 +81,7 @@ jobs:
             }
       - name: Get change details after approval
         id: get-change
-        uses: ServiceNow/servicenow-devops-get-change@v1.0.0
+        uses: ServiceNow/servicenow-devops-get-change@v5.1.0
         with:
           devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
