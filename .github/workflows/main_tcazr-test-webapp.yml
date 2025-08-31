@@ -48,8 +48,8 @@ jobs:
           devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          job-name: "Register Artifact"
           context-github: ${{ toJSON(github) }}
+          job-name: "Register Artifact"
           artifacts: >-
             [
               {
@@ -65,7 +65,6 @@ jobs:
   ServiceNowDevOpsChange:
     needs: build
     runs-on: ubuntu-latest
-    environment: prod
     name: ServiceNow DevOps Change
     steps:
       - name: Register deployment gate
@@ -76,23 +75,25 @@ jobs:
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
           job-name: ServiceNow DevOps Change
-          change-request: '{
-            "setCloseCode":"true",
-            "attributes":{
-              "short_description":"Automated Software Deployment",
-              "description":"Automated Software Deployment via GitHub Actions",
-              "assignment_group":"DCV-Approval-Dashboard",
-              "implementation_plan":"Software update is testedand results can be found in Test Summaries Tab; When the change is approved, the CD pipeline will deploy the update within the change planned start and end time window.",
-              "backout_plan":"When software fails in production, the previous software release will be re-deployed.",
-              "test_plan":"Testing if the software was successfully deployed."
+          change-request: >-
+            {
+              "setCloseCode":"true",
+              "attributes":
+               {
+                "short_description":"Automated Software Deployment",
+                "description":"Automated Software Deployment via GitHub Actions",
+                "assignment_group":"DCV-Approval-Dashboard",
+                "implementation_plan":"Software update is tested and results can be found in Test Summaries Tab; When the change is approved, the CD pipeline will deploy the update within the change planned start and end time window.",
+                "backout_plan":"When software fails in production, the previous software release will be re-deployed.","test_plan":"Testing if the software was successfully deployed."
               }
-            }'
+            }
           interval: '100'
           timeout: '3600'
           deployment-gate: '{"environment": "prod","jobName": "deploy"}'
 
   deploy:
     needs: ServiceNowDevOpsChange
+    environment: prod
     runs-on: ubuntu-latest
     permissions:
       id-token: write #This is required for requesting the JWT
