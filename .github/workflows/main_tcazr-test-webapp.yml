@@ -67,6 +67,7 @@ jobs:
     name: ServiceNow DevOps Change
     outputs:
       change_sys_id: ${{ steps.deployment-gate.outputs.change-request-sys-id }}
+      change_number: ${{ steps.deployment-gate.outputs.change-request-number }}
 
     steps:
       - name: Register deployment gate
@@ -161,10 +162,6 @@ jobs:
           context-github: ${{ toJSON(github) }}
           change-request-number: ${{ needs.ServiceNowDevOpsChange.outputs.change_number }}
           change-request-details: >-
-            {
-              "sysId": "${{ needs.ServiceNowDevOpsChange.outputs.change_sys_id }}"
-            }
-          attributes: >-
             {
               "state": "Closed",
               "close_code": "successful",
