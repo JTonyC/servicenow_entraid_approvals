@@ -159,7 +159,8 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
-          change-details: >-
+          change-request-number: ${{ needs.ServiceNowDevOpsChange.outputs.change_number }}
+          change-request-details: >-
             {
               "sysId": "${{ needs.ServiceNowDevOpsChange.outputs.change_sys_id }}"
             }
