@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read #This is required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
@@ -28,50 +28,26 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
-
+      
       - name: Install dependencies
         run: pip install -r requirements.txt
+        
+      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
           path: |
-            app/
-            requirements.txt
+            .
             !venv/
-
-      - name: Register build artifact in ServiceNow
-        uses: ServiceNow/servicenow-devops-register-artifact@v3.1.0
-        with:
-          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          job-name: "Register Artifact"
-          context-github: ${{ toJSON(github) }}
-          artifacts: >-
-            [
-              {
-                "name": "python-app",
-                "version": "1.${{ github.run_number }}",
-                "semanticVersion": "1.${{ github.run_number }}.0",
-                "repositoryName": "${{ github.repository }}",
-                "branchName": "${{ github.ref_name }}",
-                "commitId": "${{ github.sha }}"
-              }
-            ]
 
   ServiceNowDevOpsChange:
     needs: build
     runs-on: ubuntu-latest
-    name: ServiceNow DevOps Change
-    outputs:
-      change_sys_id: ${{ steps.deployment-gate.outputs.change-request-sys-id }}
-      change_number: ${{ steps.deployment-gate.outputs.change-request-number }}
-
+    name: ServiceNow DevOps Change (Deployment Gate)
     steps:
       - name: Register deployment gate
-        id: deployment-gate
         uses: ServiceNow/servicenow-devops-change@v6.1.0
         with:
           devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
@@ -85,30 +61,13 @@ jobs:
               "jobName": "deploy"
             }
 
-# To override change request fields instead of using record preset
-# Add the attributes hash in the deployment gate after jobName, including the attribute and value to override.
-# , "attributes": {
-#     "short_description": "Hotfix deployment for payment API",
-#     "description": "Triggered by GitHub Actions for urgent fix",
-#     "assignment_group": "<sys_id of CAB group>",
-#     "priority": "2",
-#     "implementation_plan": "Deploy hotfix branch and monitor API latency",
-#     "backout_plan": "Revert to previous artifact and restore DB snapshot",
-#     "test_plan": "Run regression suite and validate payment flow",
-#     "category": "Software",
-#     "risk": "Medium",
-#     "impact": "Medium",
-#     "cmdb_ci": "<sys_id of Application Service CI>",
-#     "u_environment": "prod"
-# }
-
   deploy:
     needs: ServiceNowDevOpsChange
     runs-on: ubuntu-latest
     environment: prod
     permissions:
-      id-token: write
-      contents: read
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
 
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
@@ -121,7 +80,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: python-app
-
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -142,31 +101,9 @@ jobs:
                 FLASK_SECRET=${{ secrets.FLASK_SECRET }} \
                 SERVICE_NOW_API=${{ secrets.SERVICE_NOW_API }}
 
-      - name: Deploy to Azure Web App
+      - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'tcazr-test-webapp'
           slot-name: 'Production'
-
-  close-change:
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Update (close) change in ServiceNow
-        uses: ServiceNow/servicenow-devops-update-change@v5.1.0
-        with:
-          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          context-github: ${{ toJSON(github) }}
-          change-request-number: ${{ needs.ServiceNowDevOpsChange.outputs.change_number }}
-          change-request-details: >-
-            {
-              "state": "Closed",
-              "close_code": "successful",
-              "close_notes": "Deployment completed successfully and validated"
-            }
-      - name: Log closed change URL
-        run: | 
-          echo "Closed Change URL: ${{ secrets.SN_INSTANCE_URL }}/nav_to.do?uri=change_request.do?sys_id=${{ needs.ServiceNowDevOpsChange.outputs.change_sys_id }}"
