@@ -79,6 +79,7 @@ jobs:
               "environment": "prod",
               "jobName": "deploy"
             }
+
       - name: Get change details after approval
         id: get-change
         uses: ServiceNow/servicenow-devops-get-change@v5.1.0
@@ -87,9 +88,12 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
-          job-name: Get Change
+          change-details: >-
+            {
+              "context": ${{ toJSON(github) }}
+            }
 
-      - name: Log change info
+      - name: Log change URL
         run: |
           echo "Change Request Number: ${{ steps.get-change.outputs.change-request-number }}"
           echo "Change Request URL: ${{ secrets.SN_INSTANCE_URL }}/nav_to.do?uri=change_request.do?sys_id=${{ steps.get-change.outputs.change-request-sys-id }}"
@@ -163,7 +167,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Update (close) change in ServiceNow
-        uses: ServiceNow/servicenow-devops-update-change@v1.0.0
+        uses: ServiceNow/servicenow-devops-update-change@v5.1.0
         with:
           devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
@@ -175,8 +179,4 @@ jobs:
               "state": "Closed",
               "close_code": "successful",
               "close_notes": "Deployment completed successfully and validated"
-              /* Uncomment to override closure details:
-              , "close_code": "successful",
-                "close_notes": "Hotfix deployed and verified in production"
-              */
             }
