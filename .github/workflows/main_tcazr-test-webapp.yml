@@ -84,7 +84,7 @@ jobs:
           deployment-gate: >-
             {
               "environment": "prod",
-              "jobName": "change"
+              "jobName": "deploy"
             }
 
   deploy:
