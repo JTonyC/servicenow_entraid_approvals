@@ -63,7 +63,7 @@ jobs:
               }
             ]
 
-  ServiceNowDevOpsChange:
+  change:
     needs: build
     runs-on: ubuntu-latest
     environment: prod
@@ -76,15 +76,15 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
-          job-name: ServiceNow DevOps Change
+          job-name: change
           deployment-gate: >-
             {
               "environment": "prod",
-              "jobName": "ServiceNow DevOps Change"
+              "jobName": "change"
             }
 
   deploy:
-    needs: ServiceNowDevOpsChange
+    needs: change
     runs-on: ubuntu-latest
     #environment: prod
     permissions:
