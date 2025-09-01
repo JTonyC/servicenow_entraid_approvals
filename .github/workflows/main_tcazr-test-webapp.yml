@@ -69,7 +69,7 @@ jobs:
     #environment: prod
     name: change
     steps:
-      - name: Heartbeat – let DCV register this job
+      - name: Heartbeat - let DCV register this job
         run: |
           echo "Starting change step..."
           sleep 5
