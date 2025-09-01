@@ -39,37 +39,27 @@ def build_msal_app(cache=None):
 
 @app.route("/")
 def index():
-    if "user" in session:
-        token = session.get("access_token")
-        approvals_by_type = fetch_servicenow_approvals(token)
-        return render_template(
-            "index.html",
-            user=session["user"],
-            approvals_by_type=approvals_by_type
-        )
-    return render_template("index.html", user=None, approvals_by_type={})
+    if "user" not in session:
+        return render_template("index.html", user=None, approvals_by_type={})
 
+    token = session.get("access_token")
+    approvals_by_type = fetch_servicenow_approvals(token) or {}
+    return render_template(
+        "index.html",
+        user=session["user"],
+        approvals_by_type=approvals_by_type
+    )
 
 @app.route("/refresh")
 def refresh():
-    # Redirect to login if no active session
     if "user" not in session:
         return redirect(url_for("login"))
 
     token = session.get("access_token")
-    data = fetch_servicenow_approvals(token) if token else {}
-
-    # Normalize and ensure approvals_by_type is always defined
-    if data is None:
-        data = {}
-    approvals_by_type = (
-        data.get("approvals_by_type", {}) if isinstance(data, dict) else {}
-    )
-
+    approvals_by_type = fetch_servicenow_approvals(token) or {}
     return render_template(
         "index.html",
         user=session["user"],
-        approvals=data,
         approvals_by_type=approvals_by_type
     )
 
