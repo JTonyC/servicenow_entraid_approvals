@@ -66,7 +66,7 @@ jobs:
   change:
     needs: build
     runs-on: ubuntu-latest
-    environment: prod
+    #environment: prod
     name: change
     steps:
       - name: Heartbeat – let DCV register this job
@@ -90,7 +90,7 @@ jobs:
   deploy:
     needs: change
     runs-on: ubuntu-latest
-    #environment: prod
+    environment: prod
     permissions:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
