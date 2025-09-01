@@ -8,7 +8,7 @@
             <a href="{{ url_for('refresh') }}" class="btn btn-secondary">Refresh Approvals</a>
         </div>
 
-        {% for type, approvals in approvals_by_type.items() %}
+        {% for type, approvals in (approvals_by_type | default({})).items() %}
             {% set slug = type|lower|replace(' ', '-') %}
 
             <h4 class="mt-4">{{ type }}</h4>
