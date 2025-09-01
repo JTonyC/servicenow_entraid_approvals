@@ -69,6 +69,10 @@ jobs:
     environment: prod
     name: change
     steps:
+      - name: Heartbeat – let DCV register this job
+        run: |
+          echo "Starting change step..."
+          sleep 5
       - name: Register deployment gate
         uses: ServiceNow/servicenow-devops-change@v6.1.0
         with:
@@ -76,7 +80,7 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
-          job-name: change
+          job-name: "change"
           deployment-gate: >-
             {
               "environment": "prod",
