@@ -27,12 +27,11 @@ def test_index_with_user(client, monkeypatch):
         }
     ]
 
+    # Return the approvals_by_type mapping directly
     monkeypatch.setattr(
         "app.fetch_servicenow_approvals",
         lambda token: {
-            "approvals_by_type": {
-                "Change Requests": mock_approvals
-            }
+            "Change Requests": mock_approvals
         }
     )
 
@@ -49,7 +48,6 @@ def test_refresh_no_user(client):
     assert resp.status_code in (301, 302)  # redirect to login
 
 def test_refresh_with_user(client, monkeypatch):
-    # Mock approvals list with all fields the template expects
     mock_approvals = [
         {
             "state": "New",
@@ -60,29 +58,13 @@ def test_refresh_with_user(client, monkeypatch):
             "assigned_to": "Assignee 1",
             "start_date": "2025-09-01",
             "end_date": "2025-09-02"
-        },
-        {
-            "state": "In Progress",
-            "number": "CHG002",
-            "short_description": "Test change 2",
-            "opened_by": "User B",
-            "assignment_group": "Group 2",
-            "assigned_to": "Assignee 2",
-            "start_date": "2025-09-03",
-            "end_date": "2025-09-04"
         }
     ]
 
-    # approvals_by_type maps type → list of approvals
-    mock_approvals_by_type = {
-        "Change Requests": mock_approvals
-    }
-
-    # Monkeypatch to return the dict shape your /refresh route passes to the template
     monkeypatch.setattr(
         "app.fetch_servicenow_approvals",
         lambda token: {
-            "approvals_by_type": mock_approvals_by_type
+            "Change Requests": mock_approvals
         }
     )
 
