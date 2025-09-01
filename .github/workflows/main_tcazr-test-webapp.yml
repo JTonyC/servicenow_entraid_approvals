@@ -11,24 +11,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - run: pip install -r requirements.txt pytest
-      - run: pytest --junitxml=test-results.xml
-      - uses: ServiceNow/servicenow-devops-register-test@v1
-        with:
-          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          context-github: ${{ toJSON(github) }}
-          job-name: "test"
-          test-results-file: "test-results.xml"
-
   build:
     runs-on: ubuntu-latest
     permissions:
@@ -45,6 +27,18 @@ jobs:
           source venv/bin/activate
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Run Unit tests
+        run: pytest --junitxml=test-results.xml
+      - name: ServiceNow DevOps Unit Test Results
+        uses: ServiceNow/servicenow-devops-test-report@v6.0.0
+        with:
+          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: 'build'  # match the job name in your workflow
+          xml-report-filename: test-results.xml  # path to your JUnit/NUnit/XUnit XML
+          test-summary-name: 'Unit Test Summary'
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
