@@ -67,7 +67,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment: prod
-    name: ServiceNow DevOps Change
+    name: change
     steps:
       - name: Register deployment gate
         uses: ServiceNow/servicenow-devops-change@v6.1.0
