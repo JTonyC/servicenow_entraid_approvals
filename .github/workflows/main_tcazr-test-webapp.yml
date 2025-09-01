@@ -11,29 +11,40 @@ on:
   workflow_dispatch:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install -r requirements.txt pytest
+      - run: pytest --junitxml=test-results.xml
+      - uses: ServiceNow/servicenow-devops-register-test@v1
+        with:
+          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: "test"
+          test-results-file: "test-results.xml"
+
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: read #This is required for actions/checkout
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-
       - name: Create and start virtual environment
         run: |
           python -m venv venv
           source venv/bin/activate
-      
       - name: Install dependencies
         run: pip install -r requirements.txt
-        
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
-
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
@@ -42,7 +53,6 @@ jobs:
             app.py
             templates/**
             requirements.txt
-
       - name: Register build artifact in ServiceNow
         uses: ServiceNow/servicenow-devops-register-artifact@v3.1.0
         with:
@@ -94,26 +104,22 @@ jobs:
     permissions:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
-
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID_5909E22C6034485D950022D0F2447A5F }}
       SERVICE_NOW_API: ${{ secrets.SERVICE_NOW_API }}
       FLASK_SECRET: ${{ secrets.FLASK_SECRET }}
-
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: python-app
-      
       - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5909E22C6034485D950022D0F2447A5F }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_51A493B9A49A4035A19E7838BA54461C }}
-
       - name: Set App Service settings
         uses: azure/cli@v2
         with:
@@ -126,7 +132,6 @@ jobs:
                 AZURE_TENANT_ID=${{ secrets.AZUREAPPSERVICE_TENANTID_5909E22C6034485D950022D0F2447A5F }} \
                 FLASK_SECRET=${{ secrets.FLASK_SECRET }} \
                 SERVICE_NOW_API=${{ secrets.SERVICE_NOW_API }}
-
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
