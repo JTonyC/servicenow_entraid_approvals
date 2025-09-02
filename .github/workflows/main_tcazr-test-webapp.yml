@@ -127,10 +127,6 @@ jobs:
     #environment: prod
     name: change
     steps:
-      - name: Heartbeat - let DCV register this job
-        run: |
-          echo "Starting change step..."
-          sleep 5
       - name: Register deployment gate
         uses: ServiceNow/servicenow-devops-change@v6.1.0
         with:
