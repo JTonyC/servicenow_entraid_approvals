@@ -34,6 +34,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install bandit
 
       - name: Run unit tests
         run: PYTHONPATH=$PYTHONPATH:$(pwd) pytest --junitxml=results.xml
@@ -92,7 +93,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install bandit
 
       - name: Package application
         run: zip -r python-app.zip app.py templates requirements.txt
