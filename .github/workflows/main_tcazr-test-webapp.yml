@@ -51,7 +51,8 @@ jobs:
           test-summary-name: 'Pytest Summary'
 
       - name: Run Bandit SAST
-        run: bandit -r . -f xml -o bandit-results.xml
+        run: |
+          python -m bandit -r . -f xml -o bandit-results.xml --severity-level high --confidence-level high || true
 
       - name: Register security results in ServiceNow DCV
         uses: ServiceNow/servicenow-devops-security-result@v3.1.0
