@@ -46,7 +46,6 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
-          job-name: 'test'
           xml-report-filename: results.xml
           test-summary-name: 'Unit Test Summary'
 
@@ -61,14 +60,13 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
-          job-name: 'test'
-          security-result-file: bandit-results.xml
-          security-result-format: bandit
           security-result-attributes: |
             {
               "scanner": "Bandit",
               "applicationName": "DCV Approvals Dashboard",
-              "buildVersion": "${{ github.run_number }}"
+              "buildVersion": "${{ github.run_number }}",
+              "fileName": "bandit-results.xml",
+              "format": "bandit"
             }
 
   build:
