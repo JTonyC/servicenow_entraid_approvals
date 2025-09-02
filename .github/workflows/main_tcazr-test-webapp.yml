@@ -46,6 +46,7 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
+          job-name: 'test'
           xml-report-filename: results.xml
           test-summary-name: 'Unit Test Summary'
 
@@ -60,6 +61,7 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
+          job-name: 'test'
           security-result-attributes: |
             {
               "scanner": "Bandit",
