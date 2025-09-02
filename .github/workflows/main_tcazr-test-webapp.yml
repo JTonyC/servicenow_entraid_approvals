@@ -12,7 +12,7 @@ on:
 
 jobs:
   test:
-    name: Unit Tests
+    name: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,9 +46,9 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
-          job-name: 'Unit Tests'
+          job-name: 'test'
           xml-report-filename: results.xml
-          test-summary-name: 'Pytest Summary'
+          test-summary-name: 'Unit Test Summary'
 
       - name: Run Bandit SAST
         run: |
@@ -61,17 +61,18 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
-          job-name: 'Bandit SAST'
+          job-name: 'test'
+          security-result-file: bandit-results.xml
+          security-result-format: bandit
           security-result-attributes: |
             {
               "scanner": "Bandit",
-              "securityToolId": "",
-              "applicationName": "",
+              "applicationName": "DCV Approvals Dashboard",
               "buildVersion": "${{ github.run_number }}"
             }
 
   build:
-    name: Build & Register Artifact
+    name: build
     runs-on: ubuntu-latest
     needs: test
     steps:
@@ -111,7 +112,7 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
-          job-name: 'Build Artifact'
+          job-name: 'build'
           artifacts: |
             [{
               "name": "python-app",
