@@ -14,13 +14,16 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-latest
+    outputs:
+      test_result_id: ${{ steps.register_tests.outputs.test_result_id }}
+      sast_result_id: ${{ steps.register_sast.outputs.security_result_id }}
     steps:
       - uses: actions/checkout@v4 #Default action
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -81,7 +84,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -96,8 +99,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Add runtime marker
+        run: |
+          echo "python-3.13" > runtime.txt
+
       - name: Package application
-        run: zip -r python-app.zip app.py templates requirements.txt
+        run: zip -r python-app.zip app.py templates requirements.txt runtime.txt
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -138,7 +145,12 @@ jobs:
           deployment-gate: >-
             {
               "environment": "prod",
-              "jobName": "deploy"
+              "jobName": "deploy",
+              "model": "DevOps Simplified",
+              "risk": "Low",
+              "assignment_group": "DevOps",
+              "test_results": "${{ needs.test.outputs.test_result_id }}",
+              "security_results": "${{ needs.build.outputs.sast_result_id }}"
             }
 
   deploy:
