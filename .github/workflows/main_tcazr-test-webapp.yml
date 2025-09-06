@@ -53,14 +53,12 @@ jobs:
           xml-report-filename: results.xml
           test-summary-name: 'Unit Test Summary'
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+      - name: SonarQube Setup
+        uses: actions/checkout@v4
         with:
-          args: >
-            -Dsonar.projectKey=jtonyc_servicenow_entraid_approvals
-            -Dsonar.organization=jtonyc
-            -Dsonar.sources=.
-            -Dsonar.python.version=3.13
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
