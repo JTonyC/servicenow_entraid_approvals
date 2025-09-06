@@ -56,10 +56,14 @@ jobs:
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5
         with:
-          host: ${{ secrets.SONAR_HOST_URL }}
-          login: ${{ secrets.SONAR_TOKEN }}
-          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
-          projectName: "DCV Approvals Dashboard"
+          args: >
+            -Dsonar.projectKey=jtonyc_servicenow_entraid_approvals
+            -Dsonar.organization=jtonyc
+            -Dsonar.sources=.
+            -Dsonar.python.version=3.13
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
 
       - name: Register SonarQube results in ServiceNow DCV
         uses: ServiceNow/servicenow-devops-sonar@v3.1.0
