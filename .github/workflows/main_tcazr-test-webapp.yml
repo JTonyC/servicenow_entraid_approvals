@@ -83,8 +83,8 @@ jobs:
           }
           with open("bandit-summary.json", "w") as f:
               json.dump(summary, f)
-          # Export as a single line for GitHub Actions
-          print(f"SECURITY_ATTRS<<EOF\n{json.dumps(summary)}\nEOF", file=open(os.environ['GITHUB_ENV'], 'a'))
+          with open(os.environ['GITHUB_ENV'], 'a') as env_file:
+              env_file.write(f'SECURITY_ATTRS={json.dumps(summary)}\n')
         shell: python
 
       - name: Register security results in ServiceNow DCV
