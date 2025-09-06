@@ -14,12 +14,10 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-latest
-    outputs:
-      test_result_id: ${{ steps.register_tests.outputs.test_result_id }}
-      sast_result_id: ${{ steps.register_sast.outputs.security_result_id }}
     steps:
       - uses: actions/checkout@v4 #Default action
-
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -33,14 +31,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install dependencies
+      - name: Install test dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install bandit
+          pip install pytest coverage
 
-      - name: Run unit tests
-        run: PYTHONPATH=$PYTHONPATH:$(pwd) pytest --junitxml=results.xml
+      - name: Run Pytest with coverage
+        run: |
+          PYTHONPATH=$PYTHONPATH:$(pwd) \
+          coverage run -m pytest --junitxml=results.xml
+          coverage xml -o coverage.xml
+          coverage report -m
 
       - name: Register test results in ServiceNow DCV
         uses: ServiceNow/servicenow-devops-test-report@v6.0.0
@@ -53,15 +55,10 @@ jobs:
           xml-report-filename: results.xml
           test-summary-name: 'Unit Test Summary'
 
-      - name: SonarQube Setup
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
 
       - name: Register SonarQube results in ServiceNow DCV
         uses: ServiceNow/servicenow-devops-sonar@v5.1.0
@@ -73,57 +70,6 @@ jobs:
           job-name: 'test'
           sonar-host-url: ${{ secrets.SONAR_HOST_URL }}
           sonar-project-key: ${{ secrets.SONAR_PROJECT_KEY }}
-
-      - name: Run Bandit SAST
-        run: |
-          python -m bandit -r . -f json -o bandit-results.json --severity-level low --confidence-level high || true
-
-      - name: Parse Bandit results for flaw counts
-        id: parse_bandit
-        run: |
-          import json
-          import os
-          from datetime import datetime
-
-          data = json.load(open("bandit-results.json"))
-          high = sum(1 for r in data.get("results", []) if r.get("issue_severity", "").lower() == "high")
-          medium = sum(1 for r in data.get("results", []) if r.get("issue_severity", "").lower() == "medium")
-          low = sum(1 for r in data.get("results", []) if r.get("issue_severity", "").lower() == "low")
-          total = high + medium + low
-          print(f"High: {high}, Medium: {medium}, Low: {low}, Total: {total}")
-          summary = {
-              "scanner": "Bandit",
-              "applicationName": "DCV Approvals Dashboard",
-              "discoveredApplication": "DCV Approvals Dashboard",
-              "buildVersion": os.getenv('GITHUB_RUN_NUMBER'),
-              "fileName": "bandit-results.json",
-              "format": "generic",
-              "lastScanDate": datetime.utcnow().isoformat() + "Z",
-              "scanSummaryName": "Bandit Security Scan",
-              "sourceScanId": os.getenv('GITHUB_SHA'),
-              "flawCount": int(total),
-              "highCount": int(high),
-              "mediumCount": int(medium),
-              "lowCount": int(low)
-          }
-
-          print("Security attributes payload:", json.dumps(summary))
-
-          with open("bandit-summary.json", "w") as f:
-              json.dump(summary, f)
-          with open(os.environ['GITHUB_ENV'], 'a') as env_file:
-              env_file.write(f'SECURITY_ATTRS={json.dumps(summary)}\n')
-        shell: python
-
-      - name: Register security results in ServiceNow DCV
-        uses: ServiceNow/servicenow-devops-security-result@v3.1.0
-        with:
-          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          context-github: ${{ toJSON(github) }}
-          job-name: 'test'
-          security-result-attributes: ${{ env.SECURITY_ATTRS }}
 
   build:
     name: build
