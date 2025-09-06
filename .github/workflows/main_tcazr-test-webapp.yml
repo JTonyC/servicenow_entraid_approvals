@@ -67,21 +67,24 @@ jobs:
           low = sum(1 for r in data.get("results", []) if r.get("issue_severity", "").lower() == "low")
           total = high + medium + low
           print(f"High: {high}, Medium: {medium}, Low: {low}, Total: {total}")
+          summary = {
+              "scanner": "Bandit",
+              "applicationName": "DCV Approvals Dashboard",
+              "discoveredApplication": "DCV Approvals Dashboard",
+              "buildVersion": "${{ github.run_number }}",
+              "fileName": "bandit-results.json",
+              "format": "generic",
+              "scanSummaryName": "Bandit Security Scan",
+              "sourceScanId": "${{ github.sha }}",
+              "flawCount": total,
+              "highCount": high,
+              "mediumCount": medium,
+              "lowCount": low
+          }
           with open("bandit-summary.json", "w") as f:
-              json.dump({
-                  "scanner": "Bandit",
-                  "applicationName": "DCV Approvals Dashboard",
-                  "discoveredApplication": "DCV Approvals Dashboard",
-                  "buildVersion": "${{ github.run_number }}",
-                  "fileName": "bandit-results.json",
-                  "format": "generic",
-                  "scanSummaryName": "Bandit Security Scan",
-                  "sourceScanId": "${{ github.sha }}",
-                  "flawCount": total,
-                  "highCount": high,
-                  "mediumCount": medium,
-                  "lowCount": low
-              }, f)
+              json.dump(summary, f)
+          # Export as a single line for GitHub Actions
+          print(f"SECURITY_ATTRS<<EOF\n{json.dumps(summary)}\nEOF", file=open(os.environ['GITHUB_ENV'], 'a'))
         shell: python
 
       - name: Register security results in ServiceNow DCV
@@ -92,7 +95,7 @@ jobs:
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
           job-name: 'test'
-          security-result-attributes: ${{ file('bandit-summary.json') }}
+          security-result-attributes: ${{ env.SECURITY_ATTRS }}
 
   build:
     name: build
