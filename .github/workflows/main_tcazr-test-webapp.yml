@@ -62,7 +62,8 @@ jobs:
         run: |
           import json
           import os
-          
+          from datetime import datetime
+
           data = json.load(open("bandit-results.json"))
           high = sum(1 for r in data.get("results", []) if r.get("issue_severity", "").lower() == "high")
           medium = sum(1 for r in data.get("results", []) if r.get("issue_severity", "").lower() == "medium")
@@ -73,16 +74,20 @@ jobs:
               "scanner": "Bandit",
               "applicationName": "DCV Approvals Dashboard",
               "discoveredApplication": "DCV Approvals Dashboard",
-              "buildVersion": "${{ github.run_number }}",
+              "buildVersion": os.getenv('GITHUB_RUN_NUMBER'),
               "fileName": "bandit-results.json",
               "format": "generic",
+              "lastScanDate": datetime.utcnow().isoformat() + "Z",
               "scanSummaryName": "Bandit Security Scan",
-              "sourceScanId": "${{ github.sha }}",
-              "flawCount": total,
-              "highCount": high,
-              "mediumCount": medium,
-              "lowCount": low
+              "sourceScanId": os.getenv('GITHUB_SHA'),
+              "flawCount": int(total),
+              "highCount": int(high),
+              "mediumCount": int(medium),
+              "lowCount": int(low)
           }
+
+          print("Security attributes payload:", json.dumps(summary))
+
           with open("bandit-summary.json", "w") as f:
               json.dump(summary, f)
           with open(os.environ['GITHUB_ENV'], 'a') as env_file:
@@ -111,30 +116,24 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+      - name: Create and start virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Package application
-        run: |
-          echo "python-3.13" > runtime.txt
-          zip -j python-app.zip runtime.txt requirements.txt app.py
-          zip -r python-app.zip templates
-
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: python-app.zip
+          path: |
+            app.py
+            templates/**
+            requirements.txt
 
       - name: Register build artifact in ServiceNow DCV
         uses: ServiceNow/servicenow-devops-register-artifact@v3.1.0
@@ -149,7 +148,9 @@ jobs:
               "name": "python-app",
               "version": "1.${{ github.run_number }}",
               "semanticVersion": "1.${{ github.run_number }}.0",
-              "repositoryName": "${{ github.repository }}"
+              "repositoryName": "${{ github.repository }}",
+              "branchName": "${{ github.ref_name }}",
+              "commitId": "${{ github.sha }}"
             }]
 
   change:
