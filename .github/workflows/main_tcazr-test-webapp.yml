@@ -53,6 +53,25 @@ jobs:
           xml-report-filename: results.xml
           test-summary-name: 'Unit Test Summary'
 
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          host: ${{ secrets.SONAR_HOST_URL }}
+          login: ${{ secrets.SONAR_TOKEN }}
+          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
+          projectName: "DCV Approvals Dashboard"
+
+      - name: Register SonarQube results in ServiceNow DCV
+        uses: ServiceNow/servicenow-devops-sonar@v3.1.0
+        with:
+          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: 'test'
+          sonar-host-url: ${{ secrets.SONAR_HOST_URL }}
+          sonar-project-key: ${{ secrets.SONAR_PROJECT_KEY }}
+
       - name: Run Bandit SAST
         run: |
           python -m bandit -r . -f json -o bandit-results.json --severity-level low --confidence-level high || true
