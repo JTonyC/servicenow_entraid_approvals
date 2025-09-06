@@ -55,7 +55,34 @@ jobs:
 
       - name: Run Bandit SAST
         run: |
-          python -m bandit -r . -f xml -o bandit-results.xml --severity-level high --confidence-level high || true
+          python -m bandit -r . -f json -o bandit-results.json --severity-level low --confidence-level high || true
+
+      - name: Parse Bandit results for flaw counts
+        id: parse_bandit
+        run: |
+          import json
+          data = json.load(open("bandit-results.json"))
+          high = sum(1 for r in data.get("results", []) if r.get("issue_severity", "").lower() == "high")
+          medium = sum(1 for r in data.get("results", []) if r.get("issue_severity", "").lower() == "medium")
+          low = sum(1 for r in data.get("results", []) if r.get("issue_severity", "").lower() == "low")
+          total = high + medium + low
+          print(f"High: {high}, Medium: {medium}, Low: {low}, Total: {total}")
+          with open("bandit-summary.json", "w") as f:
+              json.dump({
+                  "scanner": "Bandit",
+                  "applicationName": "DCV Approvals Dashboard",
+                  "discoveredApplication": "DCV Approvals Dashboard",
+                  "buildVersion": "${{ github.run_number }}",
+                  "fileName": "bandit-results.json",
+                  "format": "generic",
+                  "scanSummaryName": "Bandit Security Scan",
+                  "sourceScanId": "${{ github.sha }}",
+                  "flawCount": total,
+                  "highCount": high,
+                  "mediumCount": medium,
+                  "lowCount": low
+              }, f)
+        shell: python
 
       - name: Register security results in ServiceNow DCV
         uses: ServiceNow/servicenow-devops-security-result@v3.1.0
@@ -65,14 +92,7 @@ jobs:
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
           job-name: 'test'
-          security-result-attributes: |
-            {
-              "scanner": "Bandit",
-              "applicationName": "DCV Approvals Dashboard",
-              "buildVersion": "${{ github.run_number }}",
-              "fileName": "bandit-results.xml",
-              "format": "bandit"
-            }
+          security-result-attributes: ${{ file('bandit-summary.json') }}
 
   build:
     name: build
@@ -99,12 +119,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Add runtime marker
+      - name: Package application
         run: |
           echo "python-3.13" > runtime.txt
-
-      - name: Package application
-        run: zip -r python-app.zip app.py templates requirements.txt runtime.txt
+          zip -j python-app.zip runtime.txt requirements.txt app.py
+          zip -r python-app.zip templates
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
