@@ -150,7 +150,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write
       contents: read #This is required for actions/checkout
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
