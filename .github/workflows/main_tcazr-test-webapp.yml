@@ -151,7 +151,7 @@ jobs:
     environment: prod
     permissions:
       id-token: write
-      contents: read #This is required for actions/checkout
+      contents: read
     env:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID_5909E22C6034485D950022D0F2447A5F }}
