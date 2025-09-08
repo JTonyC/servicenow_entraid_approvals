@@ -3,7 +3,6 @@
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
 name: Build and deploy Python app to Azure Web App - tcazr-test-webapp
-
 on:
   push:
     branches:
@@ -153,9 +152,7 @@ jobs:
               "jobName": "deploy",
               "model": "DevOps Simplified",
               "risk": "Low",
-              "assignment_group": "DevOps",
-              "test_results": "${{ needs.test.outputs.test_result_id }}",
-              "security_results": "${{ needs.build.outputs.sast_result_id }}"
+              "assignment_group": "DCV-Approval-Dashboard"
             }
 
   deploy:
