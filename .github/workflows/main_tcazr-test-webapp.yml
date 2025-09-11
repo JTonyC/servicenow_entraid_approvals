@@ -48,7 +48,7 @@ jobs:
           coverage xml -o coverage.xml
           coverage report -m
 
-        # Upload test results in ServiceNow DCV
+        # Upload test results in ServiceNow DCV demo
       - name: Register test results in ServiceNow DCV
         uses: ServiceNow/servicenow-devops-test-report@v6.0.0
         with:
