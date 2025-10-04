@@ -141,7 +141,7 @@ jobs:
       - name: Create Change
         id: create_change
         run: |
-          echo "change_request=$(cat .github/change-request.json | jq -c .)" >> $GITHUB_ENV
+          echo "change_request=$(cat .github/workflows/change-request.json | jq -c .)" >> $GITHUB_ENV
 
       # Register a deployment gate in ServiceNow DCV
       - name: Register deployment gate
