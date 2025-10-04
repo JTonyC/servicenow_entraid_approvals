@@ -138,12 +138,12 @@ jobs:
     #environment: prod
     name: change
     steps:
-      - uses: actions/checkout@v4
-      - name: Load change request JSON
-        id: load_json
-        run: |
-          content=$(tr -d '\n' < change-request.json)
-          echo "json=$content" >> $GITHUB_OUTPUT
+#     - uses: actions/checkout@v4
+#    - name: Load change request JSON
+#        id: load_json
+#       run: |
+#          content=$(tr -d '\n' < change-request.json)
+#          echo "json=$content" >> $GITHUB_OUTPUT
 
       # Register a deployment gate in ServiceNow DCV
       - name: Register deployment gate
@@ -153,16 +153,12 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
-          job-name: "change"
-          change-request: ${{ steps.load_json.outputs.json }}
-          deployment-gate: >-
-            {
-              "environment": "prod",
-              "jobName": "deploy"
-            }
+          job-name: 'change'
+          #change-request: ${{ steps.load_json.outputs.json }}
+          deployment-gate: '{"environment": "prod","jobName": "deploy"}'
   
   deploy:
-    name: 'deploy'
+    name: deploy
     needs: change
     runs-on: ubuntu-latest
     environment: prod
