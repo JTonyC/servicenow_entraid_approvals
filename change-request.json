@@ -1,7 +1,6 @@
 {
-    "setCloseCode":"true",
     "autoCloseChange":true,
-    "attributes": {
+    "attributes":{
         "short_description":"Automated Software Deployment",
         "description":"Automated Software Deployment.",
         "assignment_group":"DCV-Approval-Dashboard",

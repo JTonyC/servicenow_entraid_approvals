@@ -138,7 +138,9 @@ jobs:
     #environment: prod
     name: change
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Load change request JSON
         id: load_json
         run: |
