@@ -138,11 +138,12 @@ jobs:
     #environment: prod
     name: change
     steps:
+      - uses: actions/checkout@v4
       - name: Load change request JSON
         id: load_json
         run: |
           content=$(cat change-request.json)
-          echo "json=$content >> $GITHUB_ENV
+          echo "json=$content" >> $GITHUB_OUTPUT
 
       # Register a deployment gate in ServiceNow DCV
       - name: Register deployment gate
