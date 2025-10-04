@@ -138,10 +138,11 @@ jobs:
     #environment: prod
     name: change
     steps:
-      - name: Create Change
-        id: create_change
+      - name: Load change request JSON
+        id: load_json
         run: |
-          echo "change_request=$(cat .github/workflows/change-request.json | jq -c .)" >> $GITHUB_ENV
+          content=$(cat .github/workflows/change-request.json)
+          echo "json=$content >> $GITHUB_ENV
 
       # Register a deployment gate in ServiceNow DCV
       - name: Register deployment gate
@@ -157,7 +158,7 @@ jobs:
               "environment": "prod",
               "jobName": "deploy"
             }
-          change-request: ${{ env.change_request }}
+          change-request: ${{ steps.load_json.outputs.json }}
   
   deploy:
     needs: change
