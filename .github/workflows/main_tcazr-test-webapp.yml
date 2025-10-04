@@ -154,14 +154,15 @@ jobs:
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
           job-name: "change"
+          change-request: ${{ steps.load_json.outputs.json }}
           deployment-gate: >-
             {
               "environment": "prod",
               "jobName": "deploy"
             }
-          change-request: ${{ steps.load_json.outputs.json }}
   
   deploy:
+    name: 'deploy'
     needs: change
     runs-on: ubuntu-latest
     environment: prod
