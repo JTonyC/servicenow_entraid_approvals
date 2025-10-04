@@ -141,7 +141,7 @@ jobs:
       - name: Load change request JSON
         id: load_json
         run: |
-          content=$(cat .github/workflows/change-request.json)
+          content=$(cat change-request.json)
           echo "json=$content >> $GITHUB_ENV
 
       # Register a deployment gate in ServiceNow DCV
