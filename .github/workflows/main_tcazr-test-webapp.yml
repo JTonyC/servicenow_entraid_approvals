@@ -138,6 +138,11 @@ jobs:
     #environment: prod
     name: change
     steps:
+      - name: Create Change
+        id: create_change
+        run: |
+          echo "change_request=$(cat .github/change-request.json | jq -c .)" >> $GITHUB_ENV
+
       # Register a deployment gate in ServiceNow DCV
       - name: Register deployment gate
         uses: ServiceNow/servicenow-devops-change@v6.1.0
@@ -147,25 +152,12 @@ jobs:
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
           job-name: "change"
-          change-request: >-
-            {
-              "setCloseCode":"true",
-              "autoCloseChange":true,
-              "attributes":
-              {
-                "short_description":"Automated Software Deployment",
-                "description":"Automated Software Deployment.",
-                "assignment_group":"DCV-Approval-Dashboard",
-                "implementation_plan":"Software update is tested and results can be found in Test Summaries Tab; When the change is approved the implementation happens automated by the CICD pipeline within the change planned start and end time window.",
-                "backout_plan":"When software fails in production, the previous software release will be re-deployed.",
-                "test_plan":"Testing if the software was successfully deployed"
-              }
-            }
           deployment-gate: >-
             {
               "environment": "prod",
               "jobName": "deploy"
             }
+          change-request: ${{ env.change_request }}
   
   deploy:
     needs: change
