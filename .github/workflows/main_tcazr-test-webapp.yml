@@ -164,7 +164,7 @@ jobs:
           deployment-gate: >-
             {
               "environment": "prod",
-              "jobName": "deploy",
+              "jobName": "deploy"
             }
   
   deploy:
