@@ -2,7 +2,7 @@
     "autoCloseChange":true,
     "attributes":{
         "short_description":"Automated Software Deployment - Bug Fix SCRUM-20",
-        "description":"This change is to deploy a bug fix described on work item SCRUM-19",
+        "description":"This change is to deploy a bug fix described on work item SCRUM-20",
         "implementation_plan":"Software update is tested and results can be found in Test Summaries Tab; When the change is approved the implementation happens automated by the CICD pipeline within the change planned start and end time window.",
         "backout_plan":"When software fails in production, the previous software release will be re-deployed.",
         "test_plan":"Testing if the software was successfully deployed"
