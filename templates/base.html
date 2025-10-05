@@ -26,7 +26,47 @@
 <div class="container">
     {% block content %}{% endblock %}
 </div>
+<footer class="bg-light border-top mt-5 py-3">
+  <div class="container d-flex justify-content-end">
+    <div class="text-end">
+      <!-- Quality Gate badge (top, full width) -->
+      <div class="mb-2">
+        <a href="https://sonarcloud.io/summary/new_code?id=JTonyC_servicenow_entraid_approvals" target="_blank">
+          <img src="https://sonarcloud.io/api/project_badges/quality_gate?project=JTonyC_servicenow_entraid_approvals"
+               alt="Quality Gate Status" height="28">
+        </a>
+      </div>
 
+      <!-- Grid of other badges (two columns) -->
+      <div class="row g-2">
+        <div class="col-6">
+          <a href="https://sonarcloud.io/summary/new_code?id=JTonyC_servicenow_entraid_approvals" target="_blank">
+            <img src="https://sonarcloud.io/api/project_badges/measure?project=JTonyC_servicenow_entraid_approvals&metric=coverage"
+                 alt="Coverage" class="img-fluid">
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="https://sonarcloud.io/summary/new_code?id=JTonyC_servicenow_entraid_approvals" target="_blank">
+            <img src="https://sonarcloud.io/api/project_badges/measure?project=JTonyC_servicenow_entraid_approvals&metric=bugs"
+                 alt="Bugs" class="img-fluid">
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="https://sonarcloud.io/summary/new_code?id=JTonyC_servicenow_entraid_approvals" target="_blank">
+            <img src="https://sonarcloud.io/api/project_badges/measure?project=JTonyC_servicenow_entraid_approvals&metric=vulnerabilities"
+                 alt="Vulnerabilities" class="img-fluid">
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="https://sonarcloud.io/summary/new_code?id=JTonyC_servicenow_entraid_approvals" target="_blank">
+            <img src="https://sonarcloud.io/api/project_badges/measure?project=JTonyC_servicenow_entraid_approvals&metric=code_smells"
+                 alt="Code Smells" class="img-fluid">
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
