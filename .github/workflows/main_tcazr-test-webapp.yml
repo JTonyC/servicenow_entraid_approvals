@@ -133,10 +133,9 @@ jobs:
             }]
 
   change:
+    name: change
     needs: build
     runs-on: ubuntu-latest
-    #environment: prod
-    name: change
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
