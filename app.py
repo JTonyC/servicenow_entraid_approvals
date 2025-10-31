@@ -26,8 +26,8 @@ AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 SCOPE = [os.getenv("AZURE_SCOPE", "api://db86ab2d-7ee6-4148-995e-ee2ab772c5f0/approvals.read")]
 
 
-SN_INSTANCE = "https://dev217486.service-now.com"
-SN_API_PATH = "/api/x_1680431_apis/bupahome_approvals_api/approvals"
+SN_INSTANCE = "https://dev291784.service-now.com"
+SN_API_PATH = "/api/1680431/approvals_dashboard/user"
 
 def build_msal_app(cache=None):
     return msal.ConfidentialClientApplication(
