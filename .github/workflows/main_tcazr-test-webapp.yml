@@ -11,7 +11,6 @@ on:
   workflow_dispatch:
 # Define the jobs of the workflow
 jobs:
-
   change:
     name: change
     runs-on: ubuntu-latest
