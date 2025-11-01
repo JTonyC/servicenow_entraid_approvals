@@ -87,6 +87,60 @@ jobs:
           xml-report-filename: results.xml
           test-summary-name: 'Unit Test Summary'
 
+#### New Steps for snyk scanning ####
+
+      # 🔎 NEW: Run Snyk scan for Python
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --json-file-output=snyk-results.json
+
+      # 🔎 NEW: Summarize Snyk results into DCV format (Python version)
+      - name: Summarize Snyk results
+        run: |
+          python - <<'EOF'
+          import json, datetime
+
+          # Load Snyk results
+          with open("snyk-results.json", "r") as f:
+              results = json.load(f)
+
+          # Initialize severity counters
+          summary = {"critical": 0, "high": 0, "medium": 0, "low": 0}
+
+          # Count vulnerabilities by severity
+          for vuln in results.get("vulnerabilities", []):
+              sev = vuln.get("severity")
+              if sev in summary:
+                  summary[sev] += 1
+
+          # Build DCV summary payload
+          dcv_summary = {
+              "tool_name": "Snyk",
+              "application": "python-app",
+              "scan_time": datetime.datetime.utcnow().isoformat() + "Z",
+              "summary": summary
+          }
+          # Write to file
+          with open("dcv-summary.json", "w") as out:
+              json.dump(dcv_summary, out, indent=2)
+
+          print("DCV summary written:", json.dumps(dcv_summary, indent=2))
+          EOF
+
+      # 🔎 NEW: Post Snyk summary to ServiceNow DCV
+      - name: Post Snyk summary to ServiceNow DCV
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}" \
+            "${{ secrets.SN_INSTANCE_URL }}/api/sn_devops/devops/security/inbound_event" \
+            -d @dcv-summary.json
+
+##### End of new Snyk steps ####
+
       # Run SonarQube Scan
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
