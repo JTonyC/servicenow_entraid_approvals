@@ -136,7 +136,7 @@ jobs:
         run: |
           curl -X POST \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}" \
+            -H "devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}" \
             "${{ secrets.SN_INSTANCE_URL }}/api/sn_devops/devops/security/inbound_event" \
             -d @dcv-summary.json
 
