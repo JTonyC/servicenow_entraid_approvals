@@ -98,49 +98,51 @@ jobs:
         with:
           args: --json-file-output=snyk-results.json
 
-      # 🔎 NEW: Summarize Snyk results into DCV format (Python version)
-      - name: Summarize Snyk results
+      - name: Summarize Snyk results into DCV payload
         run: |
           python - <<'EOF'
-          import json, datetime
+          import json, datetime, os
 
           # Load Snyk results
           with open("snyk-results.json", "r") as f:
               results = json.load(f)
 
-          # Initialize severity counters
+          # Count severities
           summary = {"critical": 0, "high": 0, "medium": 0, "low": 0}
-
-          # Count vulnerabilities by severity
           for vuln in results.get("vulnerabilities", []):
               sev = vuln.get("severity")
               if sev in summary:
                   summary[sev] += 1
 
-          # Build DCV summary payload
-          dcv_summary = {
-              "tool_name": "Snyk",
-              "application": "python-app",
-              "scan_time": datetime.datetime.utcnow().isoformat() + "Z",
-              "summary": summary
+          # Build full DCV payload
+          dcv_payload = {
+              "tool_id": os.environ["SN_ORCHESTRATION_TOOL_ID"],
+              "job_name": "test",
+              "context_github": json.loads(os.environ["GITHUB_CONTEXT"]),
+              "scan_results": {
+                  "tool_name": "Snyk",
+                  "application": "python-app",
+                  "scan_time": datetime.datetime.utcnow().isoformat() + "Z",
+                  "summary": summary
+              }
           }
-          # Write to file
+
           with open("dcv-summary.json", "w") as out:
-              json.dump(dcv_summary, out, indent=2)
+              json.dump(dcv_payload, out, indent=2)
 
-          print("DCV summary written:", json.dumps(dcv_summary, indent=2))
+          print("DCV payload written:", json.dumps(dcv_payload, indent=2))
           EOF
+        env:
+          SN_ORCHESTRATION_TOOL_ID: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
 
-      - name: Register Snyk results in ServiceNow DCV
-        uses: ServiceNow/servicenow-devops-generic-event@v1
-        with:
-          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          context-github: ${{ toJSON(github) }}
-          job-name: 'test'
-          event-name: 'Snyk Security Scan'
-          payload-file: dcv-summary.json
+      - name: Post Snyk summary to ServiceNow DCV
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}" \
+            "${{ secrets.SN_INSTANCE_URL }}/api/sn_devops/devops/security/inbound_event" \
+            -d @dcv-summary.json
 
 #### End of new Snyk steps ####
 
