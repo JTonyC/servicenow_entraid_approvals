@@ -101,17 +101,21 @@ jobs:
       - name: Summarize Snyk results into DCV payload
         run: |
           python - <<'EOF'
-          import json, datetime, os
+          import json, os
+          from datetime import datetime, timezone
 
+          # Load Snyk results
           with open("snyk-results.json") as f:
               results = json.load(f)
 
+          # Count severities
           summary = {"critical": 0, "high": 0, "medium": 0, "low": 0}
           for vuln in results.get("vulnerabilities", []):
               sev = vuln.get("severity")
               if sev in summary:
                   summary[sev] += 1
 
+          # Build DCV payload with clean UTC timestamp
           dcv_payload = {
               "tool_id": os.environ["SN_ORCHESTRATION_TOOL_ID"],
               "job_name": "test",
@@ -119,13 +123,15 @@ jobs:
               "scan_results": {
                   "tool_name": "Snyk",
                   "application": "python-app",
-                  "scan_time": datetime.datetime.utcnow().isoformat() + "Z",
+                  "scan_time": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
                   "summary": summary
               }
           }
 
           with open("dcv-summary.json", "w") as out:
               json.dump(dcv_payload, out, indent=2)
+
+          print("DCV payload written:", json.dumps(dcv_payload, indent=2))
           EOF
         env:
           SN_ORCHESTRATION_TOOL_ID: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
