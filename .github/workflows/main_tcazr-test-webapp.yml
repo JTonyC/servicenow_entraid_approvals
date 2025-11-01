@@ -14,7 +14,6 @@ jobs:
 
   change:
     name: change
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -41,6 +40,7 @@ jobs:
 
   test:
     name: test
+    needs: change
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4 #Default action
