@@ -131,16 +131,18 @@ jobs:
           print("DCV summary written:", json.dumps(dcv_summary, indent=2))
           EOF
 
-      # 🔎 NEW: Post Snyk summary to ServiceNow DCV
-      - name: Post Snyk summary to ServiceNow DCV
-        run: |
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -H "devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}" \
-            "${{ secrets.SN_INSTANCE_URL }}/api/sn_devops/devops/security/inbound_event" \
-            -d @dcv-summary.json
+      - name: Register Snyk results in ServiceNow DCV
+        uses: ServiceNow/servicenow-devops-generic-event@v1
+        with:
+          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: 'test'
+          event-name: 'Snyk Security Scan'
+          payload-file: dcv-summary.json
 
-##### End of new Snyk steps ####
+#### End of new Snyk steps ####
 
       # Run SonarQube Scan
       - name: SonarQube Scan
