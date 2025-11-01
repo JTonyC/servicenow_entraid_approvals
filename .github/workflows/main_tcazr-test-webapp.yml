@@ -11,6 +11,34 @@ on:
   workflow_dispatch:
 # Define the jobs of the workflow
 jobs:
+
+  change:
+    name: change
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Load change request JSON
+        id: load_json
+        run: |
+          content=$(jq -c . change-request.json)
+          echo "json=$content" >> $GITHUB_OUTPUT
+          echo "Payload: $content"
+
+      # Register a deployment gate in ServiceNow DCV
+      - name: Register deployment gate
+        uses: ServiceNow/servicenow-devops-change@v6.1.0
+        with:
+          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: 'change'
+          change-request: '${{ steps.load_json.outputs.json }}'
+          deployment-gate: '{"environment": "prod","jobName": "deploy"}'
+
   test:
     name: test
     runs-on: ubuntu-latest
@@ -131,33 +159,6 @@ jobs:
               "branchName": "${{ github.ref_name }}",
               "commitId": "${{ github.sha }}"
             }]
-
-  change:
-    name: change
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Load change request JSON
-        id: load_json
-        run: |
-          content=$(jq -c . change-request.json)
-          echo "json=$content" >> $GITHUB_OUTPUT
-          echo "Payload: $content"
-
-      # Register a deployment gate in ServiceNow DCV
-      - name: Register deployment gate
-        uses: ServiceNow/servicenow-devops-change@v6.1.0
-        with:
-          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          context-github: ${{ toJSON(github) }}
-          job-name: 'change'
-          change-request: '${{ steps.load_json.outputs.json }}'
-          deployment-gate: '{"environment": "prod","jobName": "deploy"}'
   
   deploy:
     name: deploy
