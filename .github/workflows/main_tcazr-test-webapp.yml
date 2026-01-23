@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 # Removed SNYK Security Scanning and reporting to ServiceNow DevOps Change Velocity (DCV).
-# Deployment for SCRUM-18.
+# Deployment for SCRUM-22.
 
 name: Build and deploy Python app to Azure Web App - tcazr-test-webapp
 on:
