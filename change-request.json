@@ -1,8 +1,8 @@
 {
     "autoCloseChange":true,
     "attributes":{
-        "short_description":"Automated Software Deployment - New Feature for SCRUM-23",
-        "description":"This change is to deploy an enhancement related to SCRUM-23.",
+        "short_description":"Automated Software Deployment - Refresh for SCRUM-22",
+        "description":"This change is to deploy an enhancement related to SCRUM-22.",
         "implementation_plan":"Software update is tested and results can be found in Test Summaries Tab; When the change is approved the implementation happens automated by the CICD pipeline within the change planned start and end time window.",
         "backout_plan":"When software fails in production, the previous software release will be re-deployed.",
         "test_plan":"Testing if the software was successfully deployed"
