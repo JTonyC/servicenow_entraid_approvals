@@ -198,4 +198,7 @@ def datetimeformat(value, format='%d %b %Y, %H:%M'):
         return value
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
+    # The below will flag a security issue in SonarQube, which is communicated too DevOps Change Velocity
+    # Resulting in the change being rejected!
+    #app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
+    app.run(host="127.0.0.1", port=int(os.getenv("PORT", 5000)), debug=False)
