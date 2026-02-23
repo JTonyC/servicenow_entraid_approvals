@@ -18,6 +18,9 @@ app.config.update(
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.config['PREFERRED_URL_SCHEME'] = 'https'
 
+# Template constants
+INDEX_TEMPLATE = "index.html"
+
 # Azure AD config
 CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
 CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
@@ -40,12 +43,12 @@ def build_msal_app(cache=None):
 @app.route("/", methods=["GET"])
 def index():
     if "user" not in session:
-        return render_template("index.html", user=None, approvals_by_type={})
+        return render_template(INDEX_TEMPLATE, user=None, approvals_by_type={})
 
     token = session.get("access_token")
     approvals_by_type = fetch_servicenow_approvals(token) or {}
     return render_template(
-        "index.html",
+        INDEX_TEMPLATE,
         user=session["user"],
         approvals_by_type=approvals_by_type
     )
@@ -58,7 +61,7 @@ def refresh():
     token = session.get("access_token")
     approvals_by_type = fetch_servicenow_approvals(token) or {}
     return render_template(
-        "index.html",
+        INDEX_TEMPLATE,
         user=session["user"],
         approvals_by_type=approvals_by_type
     )
