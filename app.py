@@ -185,14 +185,6 @@ def fetch_servicenow_approvals(access_token):
     if resp.status_code == 200:
         approvals = data.get("result", {}).get("approvals", {})
         # Comment code EPIC SCRUM-24
-        """for record_type, records in approvals.items():
-            if isinstance(records, list):
-                 friendly_label = TYPE_LABELS.get(
-                    record_type, record_type.replace('_', ' ').title()
-                )
-            approvals_by_type[friendly_label] = [
-                flatten_approval(r) for r in records
-            ]"""
         for record_type, records in approvals.items():
 
             # Always compute the friendly label
