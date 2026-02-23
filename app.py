@@ -117,6 +117,20 @@ def _extract_display_value(value):
         return value
     return None
 
+def _fill_from_nested_dicts(flat, record, target_fields):
+    """Fill missing fields in flat dict from nested dicts in record."""
+    for nested_value in record.values():
+        if not isinstance(nested_value, dict):
+            continue
+        
+        for field in target_fields:
+            if field in flat and flat[field] not in (None, ""):
+                continue
+            
+            extracted = _extract_display_value(nested_value.get(field))
+            if extracted is not None:
+                flat[field] = extracted
+
 def flatten_approval(record):
     """Flatten approval record to ensure target fields are at top level."""
     target_fields = [
@@ -125,7 +139,7 @@ def flatten_approval(record):
     ]
 
     if not isinstance(record, dict):
-        return {field: "" for field in target_fields}
+        return dict.fromkeys(target_fields, "")
 
     flat = {}
 
@@ -136,17 +150,7 @@ def flatten_approval(record):
             flat[field] = extracted
 
     # Fill missing fields from nested dicts
-    for nested_value in record.values():
-        if not isinstance(nested_value, dict):
-            continue
-
-        for field in target_fields:
-            if field in flat and flat[field] not in (None, ""):
-                continue
-
-            extracted = _extract_display_value(nested_value.get(field))
-            if extracted is not None:
-                flat[field] = extracted
+    _fill_from_nested_dicts(flat, record, target_fields)
 
     # Ensure all keys exist
     for field in target_fields:
