@@ -37,7 +37,7 @@ def build_msal_app(cache=None):
         token_cache=cache
     )
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
     if "user" not in session:
         return render_template("index.html", user=None, approvals_by_type={})
@@ -50,7 +50,7 @@ def index():
         approvals_by_type=approvals_by_type
     )
 
-@app.route("/refresh")
+@app.route("/refresh", methods=["GET"])
 def refresh():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -63,7 +63,7 @@ def refresh():
         approvals_by_type=approvals_by_type
     )
 
-@app.route("/login")
+@app.route("/login", methods=["GET"])
 def login():
     redirect_uri = url_for("authorized", _external=True, _scheme="https")
     msal_app = build_msal_app()
@@ -73,7 +73,7 @@ def login():
     )
     return redirect(auth_url)
 
-@app.route("/getAToken")
+@app.route("/getAToken", methods=["GET"])
 def authorized():
     redirect_uri = url_for("authorized", _external=True, _scheme="https")
     code = request.args.get("code")
@@ -99,7 +99,7 @@ def authorized():
     else:
         return result, 400
 
-@app.route("/logout")
+@app.route("/logout", methods=["GET"])
 def logout():
     session.clear()
     return redirect(url_for("index"))
