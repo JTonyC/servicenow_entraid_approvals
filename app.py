@@ -109,43 +109,45 @@ TYPE_LABELS = {
     "sc_req_item": "Requests"
 }
 
-def flatten_approval(record):
+def _extract_display_value(value):
+    """Extract display_value from dict or return non-empty value."""
+    if isinstance(value, dict) and "display_value" in value:
+        return value["display_value"]
+    if value not in (None, ""):
+        return value
+    return None
 
-    #Flatten an approval record so the five desired fields are always at the top level.
-    #Looks in the top level first, then in the first nested dict if needed.
+def flatten_approval(record):
+    """Flatten approval record to ensure target fields are at top level."""
     target_fields = [
-        "state",
-        "number",
-        "short_description",
-        "opened_by",
-        "assignment_group",
-        "assigned_to",
-        "start_date",
-        "end_date"
+        "state", "number", "short_description", "opened_by",
+        "assignment_group", "assigned_to", "start_date", "end_date"
     ]
-    flat = {}
 
     if not isinstance(record, dict):
         return {field: "" for field in target_fields}
 
-    # Look at top-level first
-    for field in target_fields:
-        val = record.get(field)
-        if isinstance(val, dict) and "display_value" in val:
-            flat[field] = val["display_value"]
-        elif val not in (None, ""):
-            flat[field] = val
+    flat = {}
 
-    # If missing, look inside first nested dict
-    for val in record.values():
-        if isinstance(val, dict):
-            for field in target_fields:
-                if field not in flat or flat[field] in (None, ""):
-                    subval = val.get(field)
-                    if isinstance(subval, dict) and "display_value" in subval:
-                        flat[field] = subval["display_value"]
-                    elif subval not in (None, ""):
-                        flat[field] = subval
+    # Extract from top-level fields
+    for field in target_fields:
+        extracted = _extract_display_value(record.get(field))
+        if extracted is not None:
+            flat[field] = extracted
+
+    # Fill missing fields from nested dicts
+    for nested_value in record.values():
+        if not isinstance(nested_value, dict):
+            continue
+
+        for field in target_fields:
+            if field in flat and flat[field] not in (None, ""):
+                continue
+
+            extracted = _extract_display_value(nested_value.get(field))
+            if extracted is not None:
+                flat[field] = extracted
+
     # Ensure all keys exist
     for field in target_fields:
         flat.setdefault(field, "")
