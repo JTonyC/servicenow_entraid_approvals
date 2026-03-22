@@ -75,7 +75,7 @@ jobs:
           echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
           sudo apt-get update
           sudo apt-get install -y k6
-          npm install -g k6-to-junit
+          npm install -g k6-reporter
 
         # Run tests with coverage
       - name: Run Pytest with coverage
@@ -91,7 +91,9 @@ jobs:
           TARGET_URL: ${{ secrets.APP_URL }}
         run: |
           k6 run --out json=perf-results.json tests/performance/smoke_test.js
-          k6-to-junit perf-results.json > perf-results.xml
+          k6-reporter perf-results.json perf-results.xml
+          echo "perf-results.xml content:"
+          cat perf-results.xml
 
         # Upload test results in ServiceNow DCV demo
       - name: Register test results in ServiceNow DCV
