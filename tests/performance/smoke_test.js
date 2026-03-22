@@ -24,8 +24,8 @@ export default function () {
 export function handleSummary(data) {
   const metrics = data.metrics;
 
-  // Extract metrics from k6 summary
-  const vus = metrics.vus.max; // max virtual users
+  // Extract metrics
+  const vus = metrics.vus.max;
   const httpReqs = metrics.http_reqs ? metrics.http_reqs.count : 0;
 
   const httpDuration = metrics.http_req_duration;
@@ -41,18 +41,31 @@ export function handleSummary(data) {
     ? (httpReqs / totalDurationSeconds).toFixed(2)
     : 0;
 
-  // Build ServiceNow-compatible XML
+  // Build JUnit XML
   const xml = `
-<performanceTest>
-  <name>Smoke Test</name>
-  <maxVirtualUsers>${vus}</maxVirtualUsers>
-  <throughput>${throughput}</throughput>
-  <maxTime>${maxTime}</maxTime>
-  <minTime>${minTime}</minTime>
-  <avgTime>${avgTime}</avgTime>
-  <p90>${p90}</p90>
-  <stddev>${stddev}</stddev>
-</performanceTest>
+<testsuite name="Performance Summary" tests="7">
+  <testcase name="Max Virtual Users" classname="Performance">
+    <system-out>${vus}</system-out>
+  </testcase>
+  <testcase name="Throughput (req/s)" classname="Performance">
+    <system-out>${throughput}</system-out>
+  </testcase>
+  <testcase name="Max Time (ms)" classname="Performance">
+    <system-out>${maxTime}</system-out>
+  </testcase>
+  <testcase name="Min Time (ms)" classname="Performance">
+    <system-out>${minTime}</system-out>
+  </testcase>
+  <testcase name="Average Time (ms)" classname="Performance">
+    <system-out>${avgTime}</system-out>
+  </testcase>
+  <testcase name="90th Percentile (ms)" classname="Performance">
+    <system-out>${p90}</system-out>
+  </testcase>
+  <testcase name="Standard Deviation (ms)" classname="Performance">
+    <system-out>${stddev}</system-out>
+  </testcase>
+</testsuite>
 `.trim();
 
   return {
