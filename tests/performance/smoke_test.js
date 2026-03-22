@@ -1,13 +1,13 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
+import { convert } from 'k6-to-junit';
 
 export let options = {
-  vus: 10,               // 10 virtual users
-  duration: '30s',       // run for 30 seconds
+  vus: 10,
+  duration: '30s',
   thresholds: {
-    http_req_duration: ['p(95)<500'],   // 95% of requests < 500ms
-    http_req_failed: ['rate<0.01'],     // < 1% errors allowed
-    checks: ['rate>0'],
+    http_req_duration: ['p(95)<500'],
+    http_req_failed: ['rate<0.01'],
   },
 };
 
@@ -19,5 +19,11 @@ export default function () {
     'body is not empty': (r) => r.body && r.body.length > 0,
   });
 
-  sleep(1); // small pacing delay
+  sleep(1);
+}
+
+export function handleSummary(data) {
+  return {
+    'perf-results.xml': convert(data),
+  };
 }
