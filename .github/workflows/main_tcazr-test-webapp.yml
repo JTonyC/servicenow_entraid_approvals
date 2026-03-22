@@ -69,6 +69,13 @@ jobs:
           pip install -r requirements.txt
           pip install pytest coverage
 
+          sudo apt-get update
+          sudo apt-get install -y gnupg software-properties-common
+          curl -s https://dl.k6.io/key.gpg | sudo apt-key add -
+          echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+
         # Run tests with coverage
       - name: Run Pytest with coverage
         run: |
@@ -76,6 +83,11 @@ jobs:
           coverage run -m pytest --junitxml=results.xml
           coverage xml -o coverage.xml
           coverage report -m
+
+        # Run short Performance Test with k6
+      - name: Run k6 smoke performance test
+        run: |
+          k6 run --out junit=perf-results.xml tests/performance/smoke_test.js
 
         # Upload test results in ServiceNow DCV demo
       - name: Register test results in ServiceNow DCV
@@ -88,6 +100,17 @@ jobs:
           job-name: 'test'
           xml-report-filename: results.xml
           test-summary-name: 'Unit Test Summary'
+
+      - name: Register performance test results in ServiceNow DCV
+        uses: ServiceNow/servicenow-devops-test-report@v6.0.0
+        with:
+          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: 'performance-test'
+          xml-report-filename: perf-results.xml
+          test-summary-name: 'Performance Test Summary'
 
       # Run SonarQube Scan
       - name: SonarQube Scan
