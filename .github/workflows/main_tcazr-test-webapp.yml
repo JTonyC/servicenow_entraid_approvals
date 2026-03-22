@@ -112,7 +112,7 @@ jobs:
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
           job-name: 'performance-test'
-          xml-report-filename: perf-results.xml
+          xml-report-filename: perf-results.json
           test-summary-name: 'Performance Test Summary'
 
       # Run SonarQube Scan
