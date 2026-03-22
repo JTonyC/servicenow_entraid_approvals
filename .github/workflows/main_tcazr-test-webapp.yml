@@ -111,15 +111,14 @@ jobs:
 
         # Register performance test results in ServiceNow DCV demo
       - name: Register performance test results in ServiceNow DCV
-        uses: ServiceNow/servicenow-devops-test-report@v6.0.0
-        with:
-          devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          context-github: ${{ toJSON(github) }}
-          job-name: 'performance-test'
-          xml-report-filename: perf-results.xml
-          test-summary-name: 'Performance Test Summary'
+        run: |
+          echo "Sending k6 performance results to ServiceNow DevOps..."
+          curl -X POST \
+            "${{ secrets.SN_INSTANCE_URL }}/api/sn_devops/v1/devops/tool/test?toolId=${{ secrets.SN_ORCHESTRATION_TOOL_ID }}&testType=Load" \
+            --header "Content-Type: application/json" \
+            --header "Authorization: sn_devops.DevOpsToken ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}:${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}" \
+            --data @sn-devops-results.json
+
 
       # Run SonarQube Scan
       - name: SonarQube Scan
