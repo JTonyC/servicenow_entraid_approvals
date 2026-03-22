@@ -78,10 +78,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y k6
 
-      - name: Install k6-to-junit
-        run: |
-          npm install -g k6-to-junit
-
         # Run tests with coverage
       - name: Run Pytest with coverage
         run: |
@@ -95,7 +91,7 @@ jobs:
         env:
           TARGET_URL: ${{ secrets.APP_URL }}
         run: |
-          k6 run tests/performance/smoke_test.js
+          k6 run tests/performance/smoke_test.js --summary-export=sn-devops-results.json
 
         # Upload test results in ServiceNow DCV demo
       - name: Register test results in ServiceNow DCV
