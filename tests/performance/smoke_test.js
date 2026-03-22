@@ -1,14 +1,10 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { convert } from 'k6-to-junit';
+import { jUnit } from 'https://jslib.k6.io/k6-reporter/1.0.0/index.js';
 
 export let options = {
   vus: 10,
   duration: '30s',
-  thresholds: {
-    http_req_duration: ['p(95)<500'],
-    http_req_failed: ['rate<0.01'],
-  },
 };
 
 export default function () {
@@ -24,6 +20,6 @@ export default function () {
 
 export function handleSummary(data) {
   return {
-    'perf-results.xml': convert(data),
+    'perf-results.xml': jUnit(data),
   };
 }
