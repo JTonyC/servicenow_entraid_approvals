@@ -4,6 +4,7 @@
 # Removed SNYK Security Scanning and reporting to ServiceNow DevOps Change Velocity (DCV).
 # Deployment for SCRUM-24 - repush following refresh
 
+
 name: Build and deploy Python app to Azure Web App - tcazr-test-webapp
 on:
   push:
@@ -15,6 +16,8 @@ jobs:
   change:
     name: change
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -42,6 +45,8 @@ jobs:
     name: test
     needs: change
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4 #Default action
         with:
@@ -137,6 +142,8 @@ jobs:
     name: build
     needs: test
     runs-on: ubuntu-latest
+    env:
+        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
 
@@ -196,6 +203,7 @@ jobs:
       id-token: write
       contents: read
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       AZURE_CLIENT_ID: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID_5909E22C6034485D950022D0F2447A5F }}
       SERVICE_NOW_API: ${{ secrets.SERVICE_NOW_API }}
