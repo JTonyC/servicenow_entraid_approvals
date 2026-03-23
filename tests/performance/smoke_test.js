@@ -5,7 +5,7 @@ export let options = {
   vus: 10,
   duration: '30s',
   thresholds: {
-    checks: ['rate>0'],
+    http_req_duration: ['p(95)<2000'], // forces full metric aggregation
   },
 };
 
