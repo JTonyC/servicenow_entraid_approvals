@@ -10,17 +10,6 @@ export let options = {
   },
 };
 
-export default function () {
-  const res = http.get(`${__ENV.TARGET_URL}/`);
-
-  check(res, {
-    'status is 200': (r) => r.status === 200,
-    'body is not empty': (r) => r.body && r.body.length > 0,
-  });
-
-  sleep(1);
-}
-
 export function handleSummary(data) {
   const metrics = data.metrics;
 
@@ -33,26 +22,25 @@ export function handleSummary(data) {
     : 0;
 
   const payload = {
-    // High-level test metadata
-    testType: "Load",          // maps to the Load test type in Change Velocity
-    testToolName: "k6",
-    testName: "k6 Smoke Test",
+    name: "k6 Performance Test",
+    url: `${__ENV.GITHUB_SERVER_URL}/${__ENV.GITHUB_REPOSITORY}/actions/runs/${__ENV.GITHUB_RUN_ID}`,
 
-    // Timing
     startTime: new Date(data.state.testRunStart).toISOString(),
-    endTime: new Date().toISOString(),
+    finishTime: new Date().toISOString(),
+    duration: totalDurationSeconds,
 
-    // Core performance metrics
-    testResult: {
-      maxVirtualUsers: metrics.vus ? metrics.vus.max : 0,
-      totalRequests: httpReqs,
-      throughput, // req/s
-      maxTime: httpDuration.max || 0,
-      minTime: httpDuration.min || 0,
-      avgTime: httpDuration.avg || 0,
-      p90: httpDuration["p(90)"] || 0,
-      stddev: httpDuration.stddev || 0
-    }
+    maximumVirtualUsers: metrics.vus ? metrics.vus.max : 0,
+    throughput: throughput,
+    maximumTime: httpDuration.max || 0,
+    minimumTime: httpDuration.min || 0,
+    averageTime: httpDuration.avg || 0,
+    ninetyPercent: httpDuration["p(90)"] || 0,
+    standardDeviation: httpDuration.stddev || 0,
+
+    // Pipeline binding (must match your SN pipeline)
+    buildNumber: __ENV.GITHUB_RUN_NUMBER,
+    stageName: "test",
+    pipelineName: "JTonyC/servicenow_entraid_approvals/Build and deploy Python app to Azure Web App - tcazr-test-webapp"
   };
 
   return {
