@@ -101,7 +101,7 @@ jobs:
           GITHUB_SERVER_URL: ${{ github.server_url }}
           K6_SUMMARY_EXPORT_PATH: ${{ github.workspace }}
         run: |
-          k6 run tests/performance/smoke_test.js --summary-export=sn-devops-results.json
+          k6 run tests/performance/smoke_test.js
 
       - name: show summary file
         run: |
