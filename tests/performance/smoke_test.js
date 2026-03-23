@@ -51,7 +51,6 @@ export function handleSummary(data) {
   };
 
   return {
-    [`${__ENV.K6_SUMMARY_EXPORT_PATH}/sn-devops-results.json`]:
-      JSON.stringify(payload, null, 2),
+    "sn-devops-results.json": JSON.stringify(payload, null, 2)
   };
 }
