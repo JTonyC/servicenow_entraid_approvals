@@ -113,7 +113,7 @@ jobs:
         # Register performance test results in ServiceNow DCV demo
       - name: Register performance test results in ServiceNow DCV
         run: |
-          echo "Sending k6 performance results to ServiceNow DevOps..."
+          echo "Sending k6 performance results to ServiceNow DevOps...."
 
           curl -X POST \
             "${{ secrets.SN_INSTANCE_URL }}/api/sn_devops/v2/devops/tool/test?toolId=${{ secrets.SN_ORCHESTRATION_TOOL_ID }}&testType=Load" \
