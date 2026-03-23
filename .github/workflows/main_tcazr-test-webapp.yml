@@ -95,6 +95,11 @@ jobs:
       - name: Run k6 performance test
         env:
           TARGET_URL: ${{ secrets.APP_URL }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          K6_SUMMARY_EXPORT_PATH: ${{ github.workspace }}
         run: |
           k6 run tests/performance/smoke_test.js --summary-export=sn-devops-results.json
 
@@ -114,7 +119,6 @@ jobs:
       - name: Register performance test results in ServiceNow DCV
         run: |
           echo "Sending k6 performance results to ServiceNow DevOps...."
-
           curl -X POST \
             "${{ secrets.SN_INSTANCE_URL }}/api/sn_devops/v2/devops/tool/test?toolId=${{ secrets.SN_ORCHESTRATION_TOOL_ID }}&testType=Load" \
             --header "Content-Type: application/json" \

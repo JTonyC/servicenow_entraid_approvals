@@ -54,7 +54,7 @@ export function handleSummary(data) {
     pipelineName: "JTonyC/servicenow_entraid_approvals/Build and deploy Python app to Azure Web App - tcazr-test-webapp"
   };
 
-  return {
-    "sn-devops-results.json": JSON.stringify(payload, null, 2)
-  };
+    return {
+        [`${__ENV.K6_SUMMARY_EXPORT_PATH}/sn-devops-results.json`]: JSON.stringify(payload, null, 2)
+    };
 }
