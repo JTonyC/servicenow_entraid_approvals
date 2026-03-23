@@ -16,27 +16,17 @@ export default function () {
     'status is 200': (r) => r.status === 200,
     'body is not empty': (r) => r.body && r.body.length > 0,
   });
-
   sleep(1);
 }
 
 export function handleSummary(data) {
+  console.log("FULL SUMMARY DATA:", JSON.stringify(data, null, 2));
+
   const metrics = data.metrics;
-
   const httpReqs = metrics.http_reqs?.count || 0;
-
-  const httpDuration =
-    metrics["http_req_duration{expected_response:true}"] ||
-    metrics.http_req_duration ||
-    {};
-
-  const totalDurationSeconds =
-    (data.state?.testRunDurationMs ?? 0) / 1000;
-
-  const throughput =
-    totalDurationSeconds > 0
-      ? Number((httpReqs / totalDurationSeconds).toFixed(2))
-      : 0;
+  const httpDuration = metrics["http_req_duration{expected_response:true}"] || metrics.http_req_duration || {};
+  const totalDurationSeconds = (data.state?.testRunDurationMs ?? 0) / 1000;
+  const throughput = totalDurationSeconds > 0 ? Number((httpReqs / totalDurationSeconds).toFixed(2)) : 0;
 
   const payload = {
     name: "k6 Performance Test",
