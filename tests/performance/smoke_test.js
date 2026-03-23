@@ -1,6 +1,5 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { jUnit } from 'https://jslib.k6.io/k6-summary/0.0.1/index.js';
 
 export let options = {
   vus: 10,
@@ -27,7 +26,7 @@ export function handleSummary(data) {
   const httpReqs = metrics.http_reqs ? metrics.http_reqs.count : 0;
   const httpDuration = metrics["http_req_duration{expected_response:true}"] || metrics.http_req_duration || {};
 
-  const totalDurationSeconds = data.state.testRunDurationMs / 1000;
+  const totalDurationSeconds = (data.state?.testRunDurationMs || 0) / 1000;
   const throughput = totalDurationSeconds > 0
     ? Number((httpReqs / totalDurationSeconds).toFixed(2))
     : 0;
