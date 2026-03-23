@@ -10,6 +10,17 @@ export let options = {
   },
 };
 
+export default function () {
+  const res = http.get(`${__ENV.TARGET_URL}/`);
+
+  check(res, {
+    'status is 200': (r) => r.status === 200,
+    'body is not empty': (r) => r.body && r.body.length > 0,
+  });
+
+  sleep(1);
+}
+
 export function handleSummary(data) {
   const metrics = data.metrics;
 
