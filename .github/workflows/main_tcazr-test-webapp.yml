@@ -116,7 +116,7 @@ jobs:
           echo "Sending k6 performance results to ServiceNow DevOps..."
 
           curl -X POST \
-            "${{ secrets.SN_INSTANCE_URL }}/api/sn_devops/v2/devops/tool/test?toolId=${{ secrets.SN_ORCHESTRATION_TOOL_ID }}&testType=Load" \
+            "${{ secrets.SN_INSTANCE_URL }}/api/sn_devops/v2/devops/tool/test?toolId=${{ secrets.SN_ORCHESTRATION_TOOL_ID }}&testType=Load&ni.nolog.token=${{secrets.SN_DEVOPS_INTEGRATION_TOKEN}}" \
             --header "Content-Type: application/json" \
             --header "Accept:application/json"
             --header "Authorization: sn_devops.DevOpsToken ${{ secrets.SN_ORCHESTRATION_TOOL_ID}}:${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}" \
