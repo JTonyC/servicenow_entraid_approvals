@@ -36,8 +36,8 @@ export function handleSummary(data) {
     name: "k6 Performance Test",
     url: `${__ENV.GITHUB_SERVER_URL}/${__ENV.GITHUB_REPOSITORY}/actions/runs/${__ENV.GITHUB_RUN_ID}`,
 
-    startTime: new Date(data.state.testRunStart).toISOString(),
-    finishTime: new Date().toISOString(),
+    startTime: new Date(data.state?.testRunStart || Date.now()).toISOString(),
+    finishTime: new Date(Date.now()).toISOString(),
     duration: totalDurationSeconds,
 
     maximumVirtualUsers: metrics.vus ? metrics.vus.max : 0,
