@@ -21,6 +21,8 @@ export default function () {
 }
 
 export function handleSummary(data) {
+
+  console.log(JSON.stringify(Object.keys(metrics), null, 2));
   const metrics = data.metrics;
 
   const httpReqs = metrics.http_reqs ? metrics.http_reqs.count : 0;
@@ -32,6 +34,7 @@ export function handleSummary(data) {
     : 0;
 
   const payload = {
+
     name: "k6 Performance Test",
     url: `${__ENV.GITHUB_SERVER_URL}/${__ENV.GITHUB_REPOSITORY}/actions/runs/${__ENV.GITHUB_RUN_ID}`,
 
