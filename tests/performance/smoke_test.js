@@ -21,9 +21,8 @@ export default function () {
 }
 
 export function handleSummary(data) {
-
-  console.log(JSON.stringify(Object.keys(metrics), null, 2));
   const metrics = data.metrics;
+  console.log(JSON.stringify(Object.keys(metrics), null, 2));
 
   const httpReqs = metrics.http_reqs ? metrics.http_reqs.count : 0;
   const httpDuration = metrics["http_req_duration{expected_response:true}"] || metrics.http_req_duration || {};
