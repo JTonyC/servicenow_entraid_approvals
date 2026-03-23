@@ -25,7 +25,7 @@ export function handleSummary(data) {
   const metrics = data.metrics;
 
   const httpReqs = metrics.http_reqs ? metrics.http_reqs.count : 0;
-  const httpDuration = metrics.http_req_duration || {};
+  const httpDuration = metrics["http_req_duration{expected_response:true}"] || metrics.http_req_duration || {};
 
   const totalDurationSeconds = data.state.testRunDurationMs / 1000;
   const throughput = totalDurationSeconds > 0
@@ -40,8 +40,8 @@ export function handleSummary(data) {
     finishTime: new Date(Date.now()).toISOString(),
     duration: totalDurationSeconds,
 
-    maximumVirtualUsers: metrics.vus ? metrics.vus.max : 0,
-    throughput: throughput,
+    maximumVirtualUsers: metrics.vus_max ? metrics.vus_max.value : 0,
+    throughput: Number(throughput) || 0,
     maximumTime: httpDuration.max || 0,
     minimumTime: httpDuration.min || 0,
     averageTime: httpDuration.avg || 0,
