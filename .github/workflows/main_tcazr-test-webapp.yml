@@ -103,6 +103,14 @@ jobs:
         run: |
           k6 run tests/performance/smoke_test.js --summary-export=sn-devops-results.json
 
+      - name: show summary file
+        run: |
+          echo "Listing workspace..."
+          ls -l
+          echo "Contents of sn-devops-results.json:"
+          cat sn-devops-results.json
+
+
         # Upload test results in ServiceNow DCV demo
       - name: Register test results in ServiceNow DCV
         uses: ServiceNow/servicenow-devops-test-report@v6.0.0
