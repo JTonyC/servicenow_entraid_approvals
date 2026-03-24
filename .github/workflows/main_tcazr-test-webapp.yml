@@ -99,17 +99,23 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
-          K6_SUMMARY_EXPORT_PATH: ${{ github.workspace }}
         run: |
           k6 run --summary-export=${{ github.workspace }}/sn-devops-results.json tests/performance/smoke_test.js
 
-      - name: show summary file
+      - name: Show raw k6 summary
         run: |
-          echo "Listing workspace..."
-          ls -l
           echo "Contents of sn-devops-results.json:"
           cat sn-devops-results.json
 
+      # Transform k6 summary into ServiceNow format
+      - name: Transform k6 summary
+        run: |
+          node scripts/transform-k6-summary.js
+
+      - name: Show transformed summary
+        run: |
+          echo "Contents of sn-devops-transformed.json:"
+          cat sn-devops-transformed.json
 
         # Upload test results in ServiceNow DCV demo
       - name: Register test results in ServiceNow DCV
