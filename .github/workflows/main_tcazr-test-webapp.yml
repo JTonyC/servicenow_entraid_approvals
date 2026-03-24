@@ -138,7 +138,35 @@ jobs:
             --header "Content-Type: application/json" \
             --header "Accept:application/json" \
             --header "Authorization: sn_devops.DevOpsToken ${{ secrets.SN_ORCHESTRATION_TOOL_ID}}:${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}" \
-            --data @sn-devops-results.json
+            --data @<(jq -n \
+              --arg toolId "${{ secrets.SN_ORCHESTRATION_TOOL_ID }}" \
+              --arg buildNumber "${{ github.run_number }}" \
+              --arg buildId "${{ github.run_id }}" \
+              --arg attemptNumber "1" \
+              --arg stageName "test" \
+              --arg workflow "${{ github.workflow }}" \
+              --arg repository "${{ github.repository }}" \
+              --slurpfile perf sn-devops-transformed.json \
+              '{
+                toolId: $toolId,
+                buildNumber: $buildNumber,
+                buildId: $buildId,
+                attemptNumber: $attemptNumber,
+                stageName: $stageName,
+                workflow: $workflow,
+                repository: $repository,
+                testSummaries: [
+                  {
+                    name: "Performance Test Summary",
+                    testType: "Load",
+                    startTime: $perf[0].startTime,
+                    endTime: $perf[0].finishTime,
+                    duration: $perf[0].duration,
+                    metrics: $perf[0]
+                  }
+                ]
+              }'
+            )
 
       # Run SonarQube Scan
       - name: SonarQube Scan
