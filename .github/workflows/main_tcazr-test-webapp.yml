@@ -109,6 +109,12 @@ jobs:
 
       # Transform k6 summary into ServiceNow format
       - name: Transform k6 summary
+        env:
+          SN_TOOL_ID: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
         run: |
           node scripts/transform-k6-summary.js
 
