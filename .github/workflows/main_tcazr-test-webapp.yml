@@ -125,9 +125,6 @@ jobs:
         run: |
           node scripts/transform-k6-summary.js
 
-      - name: Show final payload
-        run: cat sn-devops-transformed.json
-
       - name: Register performance test results in ServiceNow DCV
         env:
           SN_TOOL_ID: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
