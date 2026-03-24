@@ -13,6 +13,9 @@ const payload = {
   name: "k6 Performance Test",
   url: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
 
+  workflow: process.env.GITHUB_WORKFLOW,
+  repository: process.env.GITHUB_REPOSITORY,
+
   startTime: new Date().toISOString(),
   finishTime: new Date().toISOString(),
   duration: durationSeconds,
@@ -27,7 +30,7 @@ const payload = {
 
   buildNumber: process.env.GITHUB_RUN_NUMBER,
   buildId: process.env.GITHUB_RUN_ID,
-  attemptNumber: "1",
+  attemptNumber: process.env.GITHUB_RUN_ATTEMPT,
 
   stageName: "test",
   pipelineName: `${process.env.GITHUB_REPOSITORY}/${process.env.GITHUB_WORKFLOW}`,
