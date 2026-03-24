@@ -112,11 +112,6 @@ jobs:
         run: |
           node scripts/transform-k6-summary.js
 
-      - name: Show transformed summary
-        run: |
-          echo "Contents of sn-devops-transformed.json:"
-          cat sn-devops-transformed.json
-
         # Upload test results in ServiceNow DCV demo
       - name: Register test results in ServiceNow DCV
         uses: ServiceNow/servicenow-devops-test-report@v6.0.0
@@ -129,44 +124,19 @@ jobs:
           xml-report-filename: results.xml
           test-summary-name: 'Unit Test Summary'
 
-        # Register performance test results in ServiceNow DCV demo
       - name: Register performance test results in ServiceNow DCV
+        env:
+          SN_TOOL_ID: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          SN_INSTANCE_URL: ${{ secrets.SN_INSTANCE_URL }}
+          SN_TOKEN: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
         run: |
           echo "Sending k6 performance results to ServiceNow DevOps...."
           curl -X POST \
-            "${{ secrets.SN_INSTANCE_URL }}/api/sn_devops/v2/devops/tool/test?toolId=${{ secrets.SN_ORCHESTRATION_TOOL_ID }}&testType=Load" \
+            "${SN_INSTANCE_URL}/api/sn_devops/v2/devops/tool/test?toolId=${SN_TOOL_ID}&testType=Load" \
             --header "Content-Type: application/json" \
             --header "Accept:application/json" \
-            --header "Authorization: sn_devops.DevOpsToken ${{ secrets.SN_ORCHESTRATION_TOOL_ID}}:${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}" \
-            --data @<(jq -n \
-              --arg toolId "${{ secrets.SN_ORCHESTRATION_TOOL_ID }}" \
-              --arg buildNumber "${{ github.run_number }}" \
-              --arg buildId "${{ github.run_id }}" \
-              --arg attemptNumber "1" \
-              --arg stageName "test" \
-              --arg workflow "${{ github.workflow }}" \
-              --arg repository "${{ github.repository }}" \
-              --slurpfile perf sn-devops-transformed.json \
-              '{
-                toolId: $toolId,
-                buildNumber: $buildNumber,
-                buildId: $buildId,
-                attemptNumber: $attemptNumber,
-                stageName: $stageName,
-                workflow: $workflow,
-                repository: $repository,
-                testSummaries: [
-                  {
-                    name: "Performance Test Summary",
-                    testType: "Load",
-                    startTime: $perf[0].startTime,
-                    endTime: $perf[0].finishTime,
-                    duration: $perf[0].duration,
-                    metrics: $perf[0]
-                  }
-                ]
-              }'
-            )
+            --header "Authorization: sn_devops.DevOpsToken ${SN_TOOL_ID}:${SN_TOKEN}" \
+            --data @sn-devops-transformed.json
 
       # Run SonarQube Scan
       - name: SonarQube Scan
