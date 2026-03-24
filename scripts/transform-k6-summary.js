@@ -30,7 +30,7 @@ const payload = {
   attemptNumber: "1",
 
   stageName: "test",
-  pipelineName: process.env.GITHUB_WORKFLOW,
+  pipelineName: `${process.env.GITHUB_REPOSITORY}/${process.env.GITHUB_WORKFLOW}`,
 
   testType: "Load"
 };
