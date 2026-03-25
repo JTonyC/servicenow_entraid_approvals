@@ -103,7 +103,7 @@ jobs:
           xml-report-filename: results.xml
           test-summary-name: 'Unit Test Summary'
 
-        # Run short Performance Test with k6..
+        # Run short Performance Test with k6.
       - name: Run k6 performance test
         env:
           TARGET_URL: ${{ secrets.APP_URL }}
