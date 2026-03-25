@@ -1,7 +1,6 @@
 import fs from "node:fs";
 
 const raw = JSON.parse(fs.readFileSync("sn-devops-results.json", "utf8"));
-console.log("STATE:", raw.state);
 const metrics = raw.metrics;
 
 const http = metrics["http_req_duration{expected_response:true}"] || metrics.http_req_duration || {};
@@ -9,10 +8,11 @@ const http = metrics["http_req_duration{expected_response:true}"] || metrics.htt
 const iterations = metrics.iterations?.count || 0;
 const durationSeconds = iterations > 0 ? iterations / metrics.http_reqs.rate : 0;
 
-const startTimeRaw = raw.state?.testRunStart || raw.state?.testRunStartTime;
-const endTimeRaw = raw.state?.testRunEnd || raw.state?.testRunEndTime;
-const start = new Date(startTimeRaw).toISOString();
-const end = new Date(endTimeRaw).toISOString();
+const finish = new Date();
+const start = new Date(finish.getTime() - durationSeconds * 1000);
+
+const startISO = start.toISOString();
+const finishISO = finish.toISOString();
 
 const payload = {
   toolId: process.env.SN_TOOL_ID,
@@ -32,8 +32,8 @@ const payload = {
   name: "k6 Performance Test",
 
   // Required timestamps
-  startTime: start,
-  finishTime: end,
+  startTime: startISO,
+  finishTime: finishISO,
 
   // Required metrics (correct types)
   duration: durationSeconds,                                        // number
