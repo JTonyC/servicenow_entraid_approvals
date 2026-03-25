@@ -48,7 +48,7 @@ const payload = {
   endTime: end,
 
   maximumVirtualUsers: metrics.vus_max?.max || 0,
-  throughput: metrics.http_reqs?.rate || 0,
+//  throughput: metrics.http_reqs?.rate || 0,
   maximumTime: http.max || 0,
   minimumTime: http.min || 0,
   averageTime: http.avg || 0,
