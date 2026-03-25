@@ -7,61 +7,46 @@ const http = metrics["http_req_duration{expected_response:true}"] || metrics.htt
 const iterations = metrics.iterations?.count || 0;
 const durationSeconds = iterations > 0 ? iterations / metrics.http_reqs.rate : 0;
 
-const payload = {
-  toolId: process.env.SN_TOOL_ID,
+const start = new Date().toISOString();
+const end = new Date().toISOString();
 
-  name: "k6 Performance Test",
-  url: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+const payload = {
+  // Required top-level fields (unchanged)
+  toolId: process.env.SN_TOOL_ID,
+  testType: "Load",
 
   workflow: process.env.GITHUB_WORKFLOW,
   repository: process.env.GITHUB_REPOSITORY,
 
-  startTime: new Date().toISOString(),
-  finishTime: new Date().toISOString(),
-  duration: durationSeconds,
-
-  maximumVirtualUsers: metrics.vus_max?.max || 0,
-  throughput: metrics.http_reqs?.rate || 0,
-  maximumTime: http.max || 0,
-  minimumTime: http.min || 0,
-  averageTime: http.avg || 0,
-  ninetyPercent: http["p(90)"] || 0,
-  standardDeviation: http.stddev || 0,
+  pipelineName: `${process.env.GITHUB_REPOSITORY}/${process.env.GITHUB_WORKFLOW}`,
+  stageName: "test",
 
   buildNumber: process.env.GITHUB_RUN_NUMBER,
   buildId: process.env.GITHUB_RUN_ID,
   attemptNumber: process.env.GITHUB_RUN_ATTEMPT,
 
-  stageName: "test",
-  pipelineName: `${process.env.GITHUB_REPOSITORY}/${process.env.GITHUB_WORKFLOW}`,
+  url: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+  name: "k6 Performance Test",
 
-  testType: "Load",
-  
+  // ⭐ NEW: Test Tool Integration-compliant testSummaries
   testSummaries: [
     {
       name: "k6 Performance Test",
       testType: "Load",
-      totalTests: 1,          // required field, harmless placeholder
-      passedTests: 1,         // required field, harmless placeholder
-      failedTests: 0,
-      skippedTests: 0,
-      ignoredTests: 0,
-      blockedTests: 0,
 
-      // Performance metrics preserved inside the summary
       duration: durationSeconds,
+      startTime: start,
+      endTime: end,
+      suites: [],
+
+      // ⭐ Performance metrics moved here (schema‑safe)
       maximumVirtualUsers: metrics.vus_max?.max || 0,
       throughput: metrics.http_reqs?.rate || 0,
       maximumTime: http.max || 0,
       minimumTime: http.min || 0,
       averageTime: http.avg || 0,
       ninetyPercent: http["p(90)"] || 0,
-      standardDeviation: http.stddev || 0,
-
-      startTime: new Date().toISOString(),
-      endTime: new Date().toISOString(),
-
-      suites: [] // required by schema
+      standardDeviation: http.stddev || 0
     }
   ]
 };
