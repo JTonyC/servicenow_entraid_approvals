@@ -36,14 +36,14 @@ const payload = {
   finishTime: finishISO,
 
   // Required metrics (correct types)
-  duration: durationSeconds,                                        // number
-  maximumVirtualUsers: metrics.vus_max?.max || 0,                   // number
-  throughput: `${(metrics.http_reqs?.rate * 60).toFixed(0)}/min`,   // string
-  maximumTime: Math.round(http.max * 1000),                         // number
-  minimumTime: Math.round(http.min * 1000) || 0,                    // number
-  averageTime: Math.round(http.avg * 1000) || 0,                    // number
-  ninetyPercent: Math.round(http["p(90)"] * 1000) || 0,             // number
-  standardDeviation: http.stddev                                    // number
+  duration: durationSeconds,                                                        // number
+  maximumVirtualUsers: metrics.vus_max?.max || 0,                                   // number
+  throughput: `${(metrics.http_reqs?.rate * 60).toFixed(0)}/min`,                   // string
+  maximumTime: Math.round(http.max * 1000),                                         // number
+  minimumTime: Math.round(http.min * 1000) || 0,                                    // number
+  averageTime: Math.round(http.avg * 1000) || 0,                                    // number
+  ninetyPercent: Math.round(http["p(90)"] * 1000) || 0,                             // number
+  standardDeviation: Math.round((metrics.http_req_duration?.stddev || 0) * 1000)    // number
 
 };
 
