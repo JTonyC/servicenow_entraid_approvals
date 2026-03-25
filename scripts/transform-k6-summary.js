@@ -8,8 +8,10 @@ const http = metrics["http_req_duration{expected_response:true}"] || metrics.htt
 const iterations = metrics.iterations?.count || 0;
 const durationSeconds = iterations > 0 ? iterations / metrics.http_reqs.rate : 0;
 
-const start = new Date().toISOString();
-const end = new Date().toISOString();
+const startTimeRaw = raw.state?.testRunStart || raw.state?.testRunStartTime;
+const endTimeRaw = raw.state?.testRunEnd || raw.state?.testRunEndTime;
+const start = new Date(startTimeRaw).toISOString();
+const end = new Date(endTimeRaw).toISOString();
 
 const payload = {
   toolId: process.env.SN_TOOL_ID,
@@ -33,14 +35,14 @@ const payload = {
   finishTime: end,
 
   // Required metrics (correct types)
-  duration: durationSeconds,                                 // number
-  maximumVirtualUsers: metrics.vus_max?.max || 0,            // number
-  throughput: String(metrics.http_reqs?.rate || 0),          // string
-  maximumTime: http.max || 0,                                // number
-  minimumTime: http.min || 0,                                // number
-  averageTime: http.avg || 0,                                // number
-  ninetyPercent: http["p(90)"] || 0,                         // number
-  standardDeviation: http.stddev || 0                        // number
+  duration: durationSeconds,                                        // number
+  maximumVirtualUsers: metrics.vus_max?.max || 0,                   // number
+  throughput: `${(metrics.http_reqs?.rate * 60).toFixed(0)}/min`,   // string
+  maximumTime: Math.round(http.max * 1000),                         // number
+  minimumTime: Math.round(http.min * 1000) || 0,                    // number
+  averageTime: Math.round(http.avg * 1000) || 0,                    // number
+  ninetyPercent: Math.round(http["p(90)"] * 1000) || 0,             // number
+  standardDeviation: Math.round(http.stddev * 1000)                 // number
 
 };
 
