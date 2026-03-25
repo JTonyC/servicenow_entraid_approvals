@@ -26,17 +26,14 @@ const payload = {
   name: "k6 Performance Test",
 
   // ⭐ Performance Test Summary schema (required)
-  // duration stays numeric
   duration: durationSeconds,
-
-  // ⭐ All other metrics must be strings
-  throughput: String(metrics.http_reqs?.rate || 0),
-  maximumVirtualUsers: String(metrics.vus_max?.max || 0),
-  maximumTime: String(http.max || 0),
-  minimumTime: String(http.min || 0),
-  averageTime: String(http.avg || 0),
-  ninetyPercent: String(http["p(90)"] || 0),
-  standardDeviation: String(http.stddev || 0)
+  throughput: metrics.http_reqs?.rate || 0,
+  maximumVirtualUsers: metrics.vus_max?.max || 0,
+  maximumTime: http.max || 0,
+  minimumTime: http.min || 0,
+  averageTime: http.avg || 0,
+  ninetyPercent: http["p(90)"] || 0,
+  standardDeviation: http.stddev || 0
 };
 
 fs.writeFileSync("sn-devops-perf.json", JSON.stringify(payload, null, 2));
