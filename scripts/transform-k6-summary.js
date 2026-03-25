@@ -43,7 +43,7 @@ const payload = {
   minimumTime: Math.round(http.min * 1000) || 0,                    // number
   averageTime: Math.round(http.avg * 1000) || 0,                    // number
   ninetyPercent: Math.round(http["p(90)"] * 1000) || 0,             // number
-  standardDeviation: Math.round(http.stddev * 1000)                 // number
+  standardDeviation: http.stddev                                    // number
 
 };
 
