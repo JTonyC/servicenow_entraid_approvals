@@ -4,6 +4,12 @@ const raw = JSON.parse(fs.readFileSync("sn-devops-results.json", "utf8"));
 const metrics = raw.metrics;
 
 const http = metrics["http_req_duration{expected_response:true}"] || metrics.http_req_duration || {};
+
+// Derive meaningful test summary values
+const totalTests = metrics.http_reqs?.count || 0;
+const passedTests = metrics["http_reqs{expected_response:true}"]?.count || totalTests;
+const failedTests = metrics["http_reqs{expected_response:false}"]?.count || 0;
+
 const iterations = metrics.iterations?.count || 0;
 const durationSeconds = iterations > 0 ? iterations / metrics.http_reqs.rate : 0;
 
@@ -33,6 +39,14 @@ const payload = {
     {
       name: "k6 Performance Test",
       testType: "Load",
+
+      // Required fields for Test Tool Integration
+      totalTests: totalTests,
+      passedTests: passedTests,
+      failedTests: failedTests,
+      skippedTests: 0,
+      blockedTests: 0,
+      ignoredTests: 0,
 
       duration: durationSeconds,
       startTime: start,
