@@ -25,15 +25,20 @@ const payload = {
   url: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
   name: "k6 Performance Test",
 
-  // ⭐ Performance Test Summary schema (required)
-  duration: durationSeconds,
-  throughput: metrics.http_reqs?.rate || 0,
-  maximumVirtualUsers: metrics.vus_max?.max || 0,
-  maximumTime: http.max || 0,
-  minimumTime: http.min || 0,
-  averageTime: http.avg || 0,
-  ninetyPercent: http["p(90)"] || 0,
-  standardDeviation: http.stddev || 0
+  // Required timestamps
+  startTime: start,
+  finishTime: end,
+
+  // Required metrics (correct types)
+  duration: durationSeconds,                                 // number
+  maximumVirtualUsers: metrics.vus_max?.max || 0,            // number
+  throughput: String(metrics.http_reqs?.rate || 0),          // string
+  maximumTime: http.max || 0,                                // number
+  minimumTime: http.min || 0,                                // number
+  averageTime: http.avg || 0,                                // number
+  ninetyPercent: http["p(90)"] || 0,                         // number
+  standardDeviation: http.stddev || 0                        // number
+
 };
 
 fs.writeFileSync("sn-devops-perf.json", JSON.stringify(payload, null, 2));
