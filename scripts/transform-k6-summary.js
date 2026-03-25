@@ -8,12 +8,12 @@ const http = metrics["http_req_duration{expected_response:true}"] || metrics.htt
 const iterations = metrics.iterations?.count || 0;
 const durationSeconds = iterations > 0 ? iterations / metrics.http_reqs.rate : 0;
 
-const start = new Date().toISOString();
-const end = new Date().toISOString();
-
 const payload = {
-  name: "k6 Performance Test",
+  toolId: process.env.SN_TOOL_ID,
+  testType: "Load",
+
   url: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+  name: "k6 Performance Test",
 
   startTime: start,
   finishTime: end,
@@ -30,11 +30,15 @@ const payload = {
   ninetyPercent: String(http["p(90)"] || 0),
   standardDeviation: String(http.stddev || 0),
 
-  // Build + stage + pipelineName (your chosen combination)
   buildNumber: process.env.GITHUB_RUN_NUMBER,
-  stageName: "test",
-  pipelineName: `${process.env.GITHUB_REPOSITORY}/${process.env.GITHUB_WORKFLOW}`
+  buildId: process.env.GITHUB_RUN_ID,
+  attemptNumber: process.env.GITHUB_RUN_ATTEMPT,
+  workflow: process.env.GITHUB_WORKFLOW,
+  repository: process.env.GITHUB_REPOSITORY,
+
+  pipelineName: `${process.env.GITHUB_REPOSITORY}/${process.env.GITHUB_WORKFLOW}`,
+  stageName: "test"
 };
 
 fs.writeFileSync("sn-devops-perf.json", JSON.stringify(payload, null, 2));
-console.log("Performance Test payload written to sn-devops-perf.json");
+console.log("Performance Test Summary payload written to sn-devops-perf.json");
