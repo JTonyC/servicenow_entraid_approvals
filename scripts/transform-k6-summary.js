@@ -1,6 +1,7 @@
 import fs from "node:fs";
 
 const raw = JSON.parse(fs.readFileSync("sn-devops-results.json", "utf8"));
+console.log("STATE:", raw.state);
 const metrics = raw.metrics;
 
 const http = metrics["http_req_duration{expected_response:true}"] || metrics.http_req_duration || {};
