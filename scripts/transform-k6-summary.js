@@ -8,6 +8,9 @@ const http = metrics["http_req_duration{expected_response:true}"] || metrics.htt
 const iterations = metrics.iterations?.count || 0;
 const durationSeconds = iterations > 0 ? iterations / metrics.http_reqs.rate : 0;
 
+const start = new Date().toISOString();
+const end = new Date().toISOString();
+
 const payload = {
   toolId: process.env.SN_TOOL_ID,
   testType: "Load",
