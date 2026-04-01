@@ -1,7 +1,7 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
-export let options = {
+export const options = {
   vus: 10,
   duration: '30s',
   thresholds: {
@@ -9,7 +9,7 @@ export let options = {
   },
 };
 
-export default function () {
+export default function run_smoke_test () {
   const res = http.get(`${__ENV.TARGET_URL}/`);
 
   check(res, {
