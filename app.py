@@ -1,5 +1,6 @@
 # Refresh Date 23/02/2026
 from flask import Flask, render_template, redirect, request, session, url_for, jsonify
+from flask_wtf.csrf import CSRFProtect
 from datetime import datetime
 import msal
 import os
@@ -8,6 +9,8 @@ import requests
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
+csrf = CSRFProtect()
+csrf.init_app(app) # Compliant
 app.secret_key = os.getenv("FLASK_SECRET", "dev-secret")
 app.config.update(
     SESSION_COOKIE_SECURE=True,       # Only send cookie over HTTPS
