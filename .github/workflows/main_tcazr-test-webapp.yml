@@ -72,7 +72,7 @@ jobs:
           python -m venv venv
           . venv/bin/activate
           python -m pip install --upgrade pip==23.3.1
-          python -m pip install --only-binary :all: --require-hashes -r requirements_hashes.txt
+          python -m pip install --only-binary :all: --require-hashes -r requirements.txt
 
       - name: Install k6
         run: |
@@ -177,7 +177,7 @@ jobs:
           python -m venv venv
           . venv/bin/activate
           python -m pip install --upgrade pip==23.3.1
-          python -m pip install --only-binary :all: --require-hashes -r requirements_hashes.txt
+          python -m pip install --only-binary :all: --require-hashes -r requirements.txt
 
       # Run build (if applicable)
       - name: Upload artifact for deployment jobs
@@ -187,7 +187,7 @@ jobs:
           path: |
             app.py
             templates/**
-            requirements_hashes.txt
+            requirements.txt
 
       # Register the build artifact in ServiceNow DCV
       - name: Register build artifact in ServiceNow DCV
