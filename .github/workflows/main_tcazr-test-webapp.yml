@@ -127,6 +127,7 @@ jobs:
 
       # Transform k6 summary into ServiceNow format
       - name: Transform k6 summary
+        if: steps.health.outputs.healthy == 'true'
         env:
           SN_TOOL_ID: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           GITHUB_RUN_NUMBER: ${{ github.run_number }}
@@ -137,6 +138,7 @@ jobs:
           node scripts/transform-k6-summary.js
 
       - name: Register performance test results in ServiceNow DCV
+        if: steps.health.outputs.healthy == 'true'
         env:
           SN_TOOL_ID: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           SN_INSTANCE_URL: ${{ secrets.SN_INSTANCE_URL }}
