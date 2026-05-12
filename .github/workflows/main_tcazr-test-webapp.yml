@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 # Removed SNYK Security Scanning and reporting to ServiceNow DevOps Change Velocity (DCV).
-# Deployment for SCRUM-24 - repush following refresh./
+# Deployment for SCRUM-24 - repush following refresh.
 
 name: Build and deploy Python app to Azure Web App - tcazr-test-webapp
 on:
@@ -69,9 +69,10 @@ jobs:
         # Create and start virtual environment
       - name: Install test dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest coverage
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install --upgrade pip==23.3.1
+          python -m pip install --only-binary :all: --require-hashes -r requirements_hashes.txt
 
       - name: Install k6
         run: |
@@ -170,17 +171,12 @@ jobs:
         with:
           python-version: '3.13'
 
-      # Cache pip dependencies
-      - name: Create and start virtual environment
+      - name: Create virtual environment and install dependencies
         run: |
           python -m venv venv
-          source venv/bin/activate
-
-      # Install dependencies
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          . venv/bin/activate
+          python -m pip install --upgrade pip==23.3.1
+          python -m pip install --only-binary :all: --require-hashes -r requirements_hashes.txt
 
       # Run build (if applicable)
       - name: Upload artifact for deployment jobs
@@ -190,7 +186,7 @@ jobs:
           path: |
             app.py
             templates/**
-            requirements.txt
+            requirements_hashes.txt
 
       # Register the build artifact in ServiceNow DCV
       - name: Register build artifact in ServiceNow DCV

@@ -1,5 +1,8 @@
 import fs from "node:fs";
 
+const fakeNow = process.env.FAKE_NOW ? new Date(process.env.FAKE_NOW) : new Date();
+const finish = fakeNow;
+
 const raw = JSON.parse(fs.readFileSync("sn-devops-results.json", "utf8"));
 const metrics = raw.metrics;
 
@@ -8,7 +11,6 @@ const http = metrics["http_req_duration{expected_response:true}"] || metrics.htt
 const iterations = metrics.iterations?.count || 0;
 const durationSeconds = iterations > 0 ? iterations / metrics.http_reqs.rate : 0;
 
-const finish = new Date();
 const start = new Date(finish.getTime() - durationSeconds * 1000);
 
 const startISO = start.toISOString();
