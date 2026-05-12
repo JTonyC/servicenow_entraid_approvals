@@ -86,6 +86,7 @@ jobs:
         # Run tests with coverage
       - name: Run Pytest with coverage
         run: |
+          . venv/bin/activate
           PYTHONPATH=$PYTHONPATH:$(pwd) \
           coverage run -m pytest --junitxml=results.xml
           coverage xml -o coverage.xml
