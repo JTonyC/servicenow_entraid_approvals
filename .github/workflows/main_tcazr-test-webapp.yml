@@ -106,8 +106,10 @@ jobs:
 
       - name: Check app health
         id: health
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
         run: |
-          if curl -s --fail ${{ secrets.APP_URL }}; then
+          if curl -s --fail $APP_URL; then
             echo "healthy=true" >> $GITHUB_OUTPUT
           else
             echo "healthy=false" >> $GITHUB_OUTPUT
