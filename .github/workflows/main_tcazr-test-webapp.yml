@@ -257,7 +257,7 @@ jobs:
                 FLASK_SECRET=${{ secrets.FLASK_SECRET }} \
                 SERVICE_NOW_API=${{ secrets.SERVICE_NOW_API }}
       - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v4
+        uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'tcazr-test-webapp'
