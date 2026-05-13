@@ -1,3 +1,6 @@
 [run]
+source = .
 omit =
     tests/*
+    scripts/*.js
+    venv/*
