@@ -46,8 +46,10 @@ def test_perf_payload_full(tmp_path, monkeypatch):
 
     # --- Act ---
     # Run the JS script
+    script_path = Path(__file__).resolve().parents[1] / "scripts" / "transform-k6-summary.js"
+
     result = subprocess.run(
-        ["node", "/absolute/path/to/your/script.js"],
+        ["node", str(script_path)],
         capture_output=True,
         text=True
     )
