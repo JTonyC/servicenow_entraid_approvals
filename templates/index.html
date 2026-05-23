@@ -85,7 +85,7 @@
             {% endif %}
         {% endfor %}
     {% else %}
-        <div class="text-center">
+        <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 70vh;">
             <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">Sign in</a>
         </div>
     {% endif %}
