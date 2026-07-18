@@ -5,7 +5,7 @@
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "sonarlint.connectedMode.project": {
-        "connectionId": "jtonyc",
+        "connectionId": "jtonyc SonarQube Cloud",
         "projectKey": "JTonyC_servicenow_entraid_approvals"
     }
 }
