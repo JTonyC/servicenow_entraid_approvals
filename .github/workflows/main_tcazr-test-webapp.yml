@@ -2,8 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 # Removed SNYK Security Scanning and reporting to ServiceNow DevOps Change Velocity (DCV).
-# Deployment for SCRUM-34 - New repush to validate the ServiceNow DevOps Change Velocity (DCV) integration with GitHub Actions and Azure App Service. v0.6
-# Super complicated coding and review period
+# Deployment for SCRUM-34 - New repush to validate the ServiceNow DevOps Change Velocity (DCV) integration with GitHub Actions and Azure App Service. v0.4
 
 name: Build and deploy Python app to Azure Web App - tcazr-test-webapp
 on:
@@ -29,7 +28,7 @@ jobs:
 
       # Register a deployment gate in ServiceNow DCV
       - name: Register deployment gate
-        uses: ServiceNow/servicenow-devops-change@ca7f52d9c0e2f1a8b4d6e3f7a91bd2c4e6f8a10b
+        uses: ServiceNow/servicenow-devops-change@v6.3.0
         with:
           devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
@@ -91,7 +90,7 @@ jobs:
 
         # Upload test results in ServiceNow DCV demo
       - name: Register test results in ServiceNow DCV
-        uses: ServiceNow/servicenow-devops-test-report@e9f3a7c1d2b4e6f8a1c3d5e7f9a2b4c6d8e0f1a2
+        uses: ServiceNow/servicenow-devops-test-report@v6.0.0
         with:
           devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
@@ -152,12 +151,12 @@ jobs:
 
       # Run SonarQube Scan
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@d1b1f7d6a96b4f4d3e0e2c6a8b7d9a1e6f5c4e33
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       # Register the SonarQube results in ServiceNow DCV
       - name: Register SonarQube results in ServiceNow DCV
-        uses: ServiceNow/servicenow-devops-sonar@0123456789abcdef0123456789abcdef01234567
+        uses: ServiceNow/servicenow-devops-sonar@v5.1.0
         with:
           devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
@@ -201,7 +200,7 @@ jobs:
 
       # Register the build artifact in ServiceNow DCV
       - name: Register build artifact in ServiceNow DCV
-        uses: ServiceNow/servicenow-devops-register-artifact@0f6f0b354d8d4fea29a94e0643e4b7bf3ff0f4dc
+        uses: ServiceNow/servicenow-devops-register-artifact@v3.1.0
         with:
           devops-integration-token: ${{ secrets.SN_DEVOPS_INTEGRATION_TOKEN }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
@@ -238,7 +237,7 @@ jobs:
         with:
           name: python-app
       - name: Login to Azure
-        uses: azure/login@8a0d3a6d5094f2f7d5b8f8ca4f2a1897b2c4e38c
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5909E22C6034485D950022D0F2447A5F }}
@@ -246,7 +245,7 @@ jobs:
           
         # Set the App Service settings. We do this here so that they are set before the deployment step.
       - name: Set App Service settings
-        uses: azure/cli@7db1f8bf2d3d7f7f6fca9d1b4d70d4e4d2074e3c
+        uses: azure/cli@v2
         with:
           inlineScript: |
             az webapp config appsettings set \
@@ -258,7 +257,7 @@ jobs:
                 FLASK_SECRET=${{ secrets.FLASK_SECRET }} \
                 SERVICE_NOW_API=${{ secrets.SERVICE_NOW_API }}
       - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@d7f6c4b2e9a1f0c3b5d7e9f1a2b3c4d5e6f7a8b9
+        uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'tcazr-test-webapp'
